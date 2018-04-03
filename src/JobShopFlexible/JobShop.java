@@ -3,9 +3,12 @@ package JobShopFlexible;
 public class JobShop {
 
     public Graphe JobShopGraph ;
+    public int nbMachines;
+    public Machine[] Machines;
 
-    public JobShop (){
+    public JobShop (int nbMachines){
         this.JobShopGraph = new Graphe(10);
+        this.nbMachines = nbMachines;
 
         //Initialisation des sommets
         this.JobShopGraph.ensembleSommets[0].id = "Origine";
@@ -57,6 +60,10 @@ public class JobShop {
         this.JobShopGraph.ensembleSommets[7].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[9];
         this.JobShopGraph.ensembleSommets[8].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[9];
 
+        this.Machines = new Machine[nbMachines];
+        for (int i=0; i<this.nbMachines; i++){
+            Machines[i] = new Machine(i);
+        }
     }
 
 
