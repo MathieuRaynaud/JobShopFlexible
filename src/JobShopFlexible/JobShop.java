@@ -5,17 +5,17 @@ import java.io.*;
 public class JobShop {
 
     public Graphe JobShopGraph ;
-    public int nbMachines;
-    public Machine[] Machines;
+    public Processus[] Processus;
+    public int indiceProc;
 
     public JobShop (File file){
         BufferedReader br = null;
         FileReader fr = null;
         Integer currentLine = 0;
+        Integer nbTotalActivites = 0;
 
+        /* Lecture du fichier et creation des processus, activites, et machines */
         try {
-
-            //br = new BufferedReader(new FileReader(FILENAME));
             fr = new FileReader(file);
             br = new BufferedReader(fr);
             String sCurrentLine;
@@ -24,9 +24,10 @@ public class JobShop {
                 if(sCurrentLine.charAt(0) == ' ') sCurrentLine = sCurrentLine.substring(1, sCurrentLine.length());
                 String[] parts = sCurrentLine.split("[ \\t]+");
                 if(currentLine == 0){
-                    System.out.println("Nombre de proc : " + parts[0]);
-                    System.out.println("Nombre de machines : " + parts[1]);
-                    System.out.println("Nombre de machines necessaires : " + parts[2]);
+                    System.out.println("Nombre de processus : " + parts[0]);
+                    this.Processus = new Processus[Integer.parseInt(parts[0])];
+                    System.out.println("Nombre de machines disponibles : " + parts[1]);
+                    //System.out.println("Nombre de machines moyen : " + parts[2]);
                     System.out.println("\n*-----------------------------------*");
                 }
                 else{
@@ -34,17 +35,24 @@ public class JobShop {
                     int indice = 1;
                     int i, nbMachines = 0;
                     System.out.println("\nProcessus " + currentLine + " : " + parts[0] + " machines.");
+                    this.indiceProc = currentLine - 1;
+                    this.Processus[indiceProc] = new Processus(currentLine, Integer.parseInt(parts[0]));
+                    int compteur_act = 0;
                     while(indice < parts.length){
                         String numActivite = currentLine.toString() + '.' + nbActivite.toString();
                         System.out.println("  Activité " + numActivite + " - Machine(s) nécessaire(s)  : " + parts[indice]);
                         nbMachines = Integer.parseInt(parts[indice]);
+                        Processus[indiceProc].ajouterActivite(new Activite(nbActivite,nbMachines));
                         i = indice+1;
                         while(i <= indice+nbMachines*2){
                             System.out.println("    Machine " + parts[i] + " - Duree : " + parts[i+1]);
+                            Processus[indiceProc].Activites[compteur_act].ajouterMachine(Integer.parseInt(parts[i]), Integer.parseInt(parts[i+1]));
                             i += 2;
                         }
                         indice = i;
                         nbActivite++;
+                        nbTotalActivites++;
+                        compteur_act++;
                     }
                     System.out.println("\n*-----------------------------------*");
                 }
@@ -53,63 +61,29 @@ public class JobShop {
 
         } catch (IOException | IndexOutOfBoundsException err) {}
 
-        /*this.JobShopGraph = new Graphe(10);
-        this.nbMachines = nbMachines;
+        /* Creation du graphe a partir des processus, activites, et machines */
+        JobShopGraph = new Graphe(nbTotalActivites+2);
+        Sommet sommetDebut = new Sommet("debut",0);
+        Sommet sommetFin = new Sommet("fin",Processus.length);
+        Sommet tmp;
+        JobShopGraph.ajouterSommet(sommetDebut);
+        for (int i=0; i<Processus.length; i++){
+            for (int j=0; j<Processus[i].nbActivites; j++){
+                if (j ==0){
+                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),1);
+                    tmp.predecesseurs[0] = new Arc(sommetDebut,0,0);
+                }
+                else{
+                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),Processus[i].Activites[j-1].nbMachinesNecessaires);
+                    for (int k = 0; k<Processus[i].Activites[j-1].nbMachinesNecessaires; k++) {
+                        tmp.predecesseurs[k] = new Arc(JobShopGraph.ensembleSommets[j - 1], Processus[i].Activites[j - 1].MachinesNecessaires[k], Processus[i].Activites[j-1].Durees[k]);
+                    }
+                }
+                JobShopGraph.ajouterSommet(tmp);
+            }
+        }
+        JobShopGraph.ajouterSommet(sommetFin);
 
-        //Initialisation des sommets
-        this.JobShopGraph.ensembleSommets[0].id = "Origine";
-        this.JobShopGraph.ensembleSommets[1].id = "O1,1";
-        this.JobShopGraph.ensembleSommets[2].id = "O1,2";
-        this.JobShopGraph.ensembleSommets[3].id = "O1,3";
-        this.JobShopGraph.ensembleSommets[4].id = "O2,1";
-        this.JobShopGraph.ensembleSommets[5].id = "O2,2";
-        this.JobShopGraph.ensembleSommets[6].id = "O2,3";
-        this.JobShopGraph.ensembleSommets[7].id = "O3,1";
-        this.JobShopGraph.ensembleSommets[8].id = "O3,2";
-        this.JobShopGraph.ensembleSommets[9].id = "Fin";
-
-        //Initialisation des successeurs
-        this.JobShopGraph.ensembleSommets[0].nbsuccesseurs = 3;
-        this.JobShopGraph.ensembleSommets[1].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[2].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[3].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[4].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[5].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[6].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[7].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[8].nbsuccesseurs = 1;
-        this.JobShopGraph.ensembleSommets[9].nbsuccesseurs = 0;
-
-        //Initialisation des coûts des arcs
-        this.JobShopGraph.ensembleSommets[0].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[0].successeurs[1].cout = 0;
-        this.JobShopGraph.ensembleSommets[0].successeurs[2].cout = 0;
-        this.JobShopGraph.ensembleSommets[1].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[2].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[3].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[4].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[5].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[6].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[7].successeurs[0].cout = 0;
-        this.JobShopGraph.ensembleSommets[8].successeurs[0].cout = 0;
-
-        //Connexion des sommets avec leurs successeurs (Arcs)
-        this.JobShopGraph.ensembleSommets[0].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[1];
-        this.JobShopGraph.ensembleSommets[0].successeurs[1].sommetArrive = this.JobShopGraph.ensembleSommets[2];
-        this.JobShopGraph.ensembleSommets[0].successeurs[2].sommetArrive = this.JobShopGraph.ensembleSommets[3];
-        this.JobShopGraph.ensembleSommets[1].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[4];
-        this.JobShopGraph.ensembleSommets[2].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[5];
-        this.JobShopGraph.ensembleSommets[3].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[6];
-        this.JobShopGraph.ensembleSommets[4].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[7];
-        this.JobShopGraph.ensembleSommets[5].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[8];
-        this.JobShopGraph.ensembleSommets[6].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[9];
-        this.JobShopGraph.ensembleSommets[7].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[9];
-        this.JobShopGraph.ensembleSommets[8].successeurs[0].sommetArrive = this.JobShopGraph.ensembleSommets[9];
-
-        this.Machines = new Machine[nbMachines];
-        for (int i=0; i<this.nbMachines; i++){
-            Machines[i] = new Machine(i);
-        }*/
     }
 
     public static void main (String[] args){
