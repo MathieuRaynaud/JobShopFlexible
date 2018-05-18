@@ -16,15 +16,6 @@ public class Graphe {
         this.indiceSommets = 0;
     }
 
-    //A CORRIGER
-    /*public int CoutTotal (){
-        int coutTotal = 0;
-        for(int i = 0; i < nbSommets; i++){
-            coutTotal += ensembleSommets[i].predecesseurs[i].duree;
-        }
-        return coutTotal;
-    }*/
-
     public int ajouterSommet (Sommet sommet){
 
         if (indiceSommets == nbSommets){

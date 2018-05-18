@@ -2,21 +2,25 @@ package JobShopFlexible;
 
 public class Sommet {
 
+    /*************************************
+     * Un sommet correspond à une activité
+     *************************************/
+
     public String id;
     public int nbpredecesseurs;
     public Arc[] predecesseurs;
     public int indicePredecesseurs;
+    public Activite activite;
 
 
     // CONSTRUCTEUR
-    public Sommet (String nom, int nbpredecesseurs) {
+    public Sommet (String nom, int nbpredecesseurs, Activite activite) {
         this.id = nom;
         this.nbpredecesseurs = nbpredecesseurs;
         this.predecesseurs = new Arc[nbpredecesseurs];
         this.indicePredecesseurs = nbpredecesseurs-1;
+        this.activite = activite;
     }
-
-    public Sommet () {}
 
     /*
      * Méthodes

@@ -1,5 +1,6 @@
 package JobShopFlexible;
 
+import javax.xml.bind.SchemaOutputResolver;
 import java.io.*;
 
 public class JobShop {
@@ -7,6 +8,7 @@ public class JobShop {
     public Graphe JobShopGraph ;
     public Processus[] Processus;
     public int indiceProc;
+    public Machine[] tableauMachines;
 
     public JobShop (File file){
         BufferedReader br = null;
@@ -27,6 +29,12 @@ public class JobShop {
                     System.out.println("Nombre de processus : " + parts[0]);
                     this.Processus = new Processus[Integer.parseInt(parts[0])];
                     System.out.println("Nombre de machines disponibles : " + parts[1]);
+                    /************* CREATION DE TOUTES LES MACHINES *************/
+                    tableauMachines = new Machine[Integer.parseInt(parts[1])];
+                    for(int i=0; i<Integer.parseInt(parts[1]); i++){
+                        tableauMachines[i] = new Machine(i+1);
+                    }
+                    /***********************************************************/
                     //System.out.println("Nombre de machines moyen : " + parts[2]);
                     System.out.println("\n*-----------------------------------*");
                 }
@@ -63,18 +71,18 @@ public class JobShop {
 
         /* Creation du graphe a partir des processus, activites, et machines */
         JobShopGraph = new Graphe(nbTotalActivites+2);
-        Sommet sommetDebut = new Sommet("debut",0);
-        Sommet sommetFin = new Sommet("fin",Processus.length);
+        Sommet sommetDebut = new Sommet("debut",0, null);
+        Sommet sommetFin = new Sommet("fin",Processus.length, null);
         Sommet tmp;
         JobShopGraph.ajouterSommet(sommetDebut);
         for (int i=0; i<Processus.length; i++){
             for (int j=0; j<Processus[i].nbActivites; j++){
                 if (j ==0){
-                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),1);
+                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),1,(Processus[i].Activites[j]));
                     tmp.predecesseurs[0] = new Arc(sommetDebut,0,0);
                 }
                 else{
-                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),Processus[i].Activites[j-1].nbMachinesNecessaires);
+                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),Processus[i].Activites[j-1].nbMachinesNecessaires,(Processus[i].Activites[j]));
                     for (int k = 0; k<Processus[i].Activites[j-1].nbMachinesNecessaires; k++) {
                         tmp.predecesseurs[k] = new Arc(JobShopGraph.ensembleSommets[j - 1], Processus[i].Activites[j - 1].MachinesNecessaires[k], Processus[i].Activites[j-1].Durees[k]);
                     }

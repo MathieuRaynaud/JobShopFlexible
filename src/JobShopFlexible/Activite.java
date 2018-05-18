@@ -34,7 +34,6 @@ public class Activite {
             System.out.println("Impossible d'ajouter une machine, nombre maximal atteint !");
             return -1;
         }
-
         MachinesNecessaires[indiceMachine] = machine;
         Durees[indiceMachine] = duree;
         this.indiceMachine += 1;
