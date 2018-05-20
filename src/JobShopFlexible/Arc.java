@@ -3,15 +3,17 @@ package JobShopFlexible;
 public class Arc {
 
     public Sommet sommetArrive;
-    public int cout;
+    public int machine;
+    public int duree;
 
     /*
      * Constructeur
      */
 
-    public Arc(Sommet sommetArrive, int cout){
+    public Arc(Sommet sommetArrive, int machine, int duree){
         this.sommetArrive = sommetArrive;
-        this.cout = cout;
+        this.machine = machine;
+        this.duree = duree;
     }
 
     public Arc() {}
