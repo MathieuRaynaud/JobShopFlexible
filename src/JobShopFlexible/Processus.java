@@ -8,7 +8,8 @@ public class Processus {
     public Integer id;
     public Integer nbActivites;
     public Activite Activites [];
-    public Integer indiceActivite;
+
+    private Integer indiceActivite;
 
     /*
      * Constructeur

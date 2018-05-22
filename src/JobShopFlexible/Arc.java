@@ -2,20 +2,17 @@ package JobShopFlexible;
 
 public class Arc {
 
-    public Sommet sommetArrive;
-    public int machine;
+    public Sommet sommetDepart;
     public int duree;
 
     /*
      * Constructeur
      */
 
-    public Arc(Sommet sommetArrive, int machine, int duree){
-        this.sommetArrive = sommetArrive;
-        this.machine = machine;
+    public Arc(Sommet sommetDepart, int duree){
+        this.sommetDepart = sommetDepart;
         this.duree = duree;
     }
 
-    public Arc() {}
 
 }

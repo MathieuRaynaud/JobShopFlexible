@@ -50,7 +50,7 @@ public class JobShop {
                         String numActivite = currentLine.toString() + '.' + nbActivite.toString();
                         System.out.println("  Activité " + numActivite + " - Machine(s) nécessaire(s)  : " + parts[indice]);
                         nbMachines = Integer.parseInt(parts[indice]);
-                        Processus[indiceProc].ajouterActivite(new Activite(nbActivite,nbMachines));
+                        Processus[indiceProc].ajouterActivite(new Activite(nbActivite,nbMachines,Processus[indiceProc]));
                         i = indice+1;
                         while(i <= indice+nbMachines*2){
                             System.out.println("    Machine " + parts[i] + " - Duree : " + parts[i+1]);
@@ -70,33 +70,41 @@ public class JobShop {
         } catch (IOException | IndexOutOfBoundsException err) {}
 
         /* Creation du graphe a partir des processus, activites, et machines */
-        JobShopGraph = new Graphe(nbTotalActivites+2);
         Sommet sommetDebut = new Sommet("debut",0, null);
+        JobShopGraph = new Graphe(sommetDebut);
         Sommet sommetFin = new Sommet("fin",Processus.length, null);
         Sommet tmp;
-        JobShopGraph.ajouterSommet(sommetDebut);
         for (int i=0; i<Processus.length; i++){
             for (int j=0; j<Processus[i].nbActivites; j++){
-                if (j ==0){
-                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),1,(Processus[i].Activites[j]));
-                    tmp.predecesseurs[0] = new Arc(sommetDebut,0,0);
+                if (j==0){
+                    tmp = new Sommet(Processus[i].id.toString()+"."+Processus[i].Activites[j].id.toString(),1,Processus[i].Activites[j]);
+                    JobShopGraph.ajouterSommet(tmp,sommetDebut,0,0,false);
                 }
-                else{
-                    tmp = new Sommet((Processus[i].Activites[j].id).toString(),Processus[i].Activites[j-1].nbMachinesNecessaires,(Processus[i].Activites[j]));
-                    for (int k = 0; k<Processus[i].Activites[j-1].nbMachinesNecessaires; k++) {
-                        tmp.predecesseurs[k] = new Arc(JobShopGraph.ensembleSommets[j - 1], Processus[i].Activites[j - 1].MachinesNecessaires[k], Processus[i].Activites[j-1].Durees[k]);
+                else {
+                    tmp = new Sommet(Processus[i].id.toString() + "." + Processus[i].Activites[j].id.toString(), 1, Processus[i].Activites[j]);
+                    for (int k = 0; k < tmp.nbpredecesseurs; k++) {
+                        System.out.println("***** Ajout du sommet " + tmp.id);
+                        JobShopGraph.ajouterSommet(tmp, , , , false);
+                        //tmp.predecesseurs[k] = new Arc(JobShopGraph.ensembleSommets[j-1], Processus[i].Activites[j-1].MachinesNecessaires[k], Processus[i].Activites[j-1].Durees[k]);
+                        System.out.println("** Sommet " + tmp.id.toString() + " : Pred = " + tmp.predecesseurs[k].sommetArrive.id.toString());
                     }
                 }
-                JobShopGraph.ajouterSommet(tmp);
             }
         }
-        JobShopGraph.ajouterSommet(sommetFin);
+        System.out.println("***** Ajout du sommet " + sommetFin.id);
+        JobShopGraph.ajouterSommet(sommetFin,,0,0,true);
+        for (int k = 0; k<sommetFin.nbpredecesseurs; k++) {
+            //sommetFin.predecesseurs[k] = new Arc(JobShopGraph.ensembleSommets[JobShopGraph.ensembleSommets.length-k],0,0);
+            System.out.println("** Sommet " + sommetFin.id.toString()+ " : Pred = "+sommetFin.predecesseurs[k].sommetArrive.id.toString());
+        }
 
     }
 
     public static void main (String[] args){
         File file = new File("Job_Data/Barnes/Text/mt10c1.fjs");
         JobShop JobFlex = new JobShop(file);
+        Glouton glouton = new Glouton(JobFlex);
+        glouton.heuristiqueGloutonne();
     }
 
 }

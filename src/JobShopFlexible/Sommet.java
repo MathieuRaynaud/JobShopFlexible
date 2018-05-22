@@ -26,16 +26,30 @@ public class Sommet {
      * Méthodes
      */
 
-    public int ajouterPredecesseur(Arc predecesseur){
+    public int ajouterPredecesseur(Sommet predecesseur, int duree){
 
         if (indicePredecesseurs == -1){
             System.out.println("Impossible d'ajouter un successeur, nombre maximal atteint");
             return -1;
         }
 
-        this.predecesseurs[indicePredecesseurs] = predecesseur;
+        this.predecesseurs[indicePredecesseurs] = new Arc(predecesseur, duree);
         indicePredecesseurs--;
 
+        return 0;
+    }
+
+    /***
+     * TODO : Fonction de mise à jour du cout de l'arc
+     */
+    public Integer modifierArc(Sommet depart, Integer nouveauCout){
+        return 0;
+    }
+
+    /***
+     * TODO : Fonction d'ajout d'un arc
+     */
+    public Integer ajouterArc(Sommet depart, Integer cout){
         return 0;
     }
 }

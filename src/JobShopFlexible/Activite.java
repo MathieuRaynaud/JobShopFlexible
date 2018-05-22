@@ -7,21 +7,25 @@ public class Activite {
     /*
      * Declarations
      */
+
+    public Processus processus;
     public Integer id;
     public int nbMachinesNecessaires;
     public Integer[] MachinesNecessaires;
     public Integer[] Durees;
-    public int indiceMachine;
+
+    private int indiceMachine;
 
     /*
      * Constructeur
      */
-    public Activite(Integer id, int nbMachinesNecessaires){
+    public Activite(Integer id, int nbMachinesNecessaires, Processus processus){
         this.id = id;
         this.nbMachinesNecessaires = nbMachinesNecessaires ;
         this.MachinesNecessaires = new Integer[nbMachinesNecessaires];
         this.Durees = new Integer[nbMachinesNecessaires];
         this.indiceMachine = 0;
+        this.processus = processus;
     }
 
     /*
@@ -39,5 +43,15 @@ public class Activite {
         this.indiceMachine += 1;
 
         return 0;
+    }
+
+    public Integer duree(Machine mac){
+        Integer result = null;
+        for(Integer i: this.MachinesNecessaires){
+            if(this.MachinesNecessaires[i]==mac.id){
+                result = i+1;
+            }
+        }
+        return result;
     }
 }
