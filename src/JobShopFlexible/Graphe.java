@@ -13,31 +13,28 @@ public class Graphe {
      */
 
     public Graphe(){
+        this.indiceSommets = -1;
     }
 
     public int ajouterSommet (Sommet sommet){
-
-
-
+        ensembleSommets.add(sommet);
+        indiceSommets++;
         return 0;
     }
 
-    public Sommet findSommetByID(String id){
-        Sommet res;
-        return res;
-    }
-
     /***
-     * TODO : Fonction de mise à jour du cout de l'arc : penser à coder la modif dans sommet
+     * Fonction de mise à jour du cout de l'arc
      */
     public Integer modifierArc(Sommet depart, Sommet arrivee, Integer nouveauCout){
+        arrivee.modifierArc(depart,nouveauCout);
         return 0;
     }
 
     /***
-     * TODO : Fonction d'ajout d'un arc : penser à coder la modif dans sommet
+     * Fonction d'ajout d'un arc
      */
     public Integer ajouterArc(Sommet depart, Sommet arrivee, Integer cout){
+        arrivee.ajouterArc(depart,cout);
         return 0;
     }
 

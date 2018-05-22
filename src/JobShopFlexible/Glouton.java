@@ -46,11 +46,9 @@ public class Glouton {
         Integer duree = 1000 ;
         Machine machine = null;
         for(Integer d:activite.Durees){
-            if (jobshop.tableauMachines[activite.MachinesNecessaires[d]-1].estDispo) {
-                if (activite.Durees[d] < duree) {
-                    duree = activite.Durees[d];
-                    machine = jobshop.tableauMachines[activite.MachinesNecessaires[d]-1];
-                }
+            if (activite.Durees[d] < duree) {
+                duree = activite.Durees[d];
+                machine = jobshop.tableauMachines[activite.MachinesNecessaires[d]-1];
             }
         }
         return machine;
@@ -78,7 +76,7 @@ public class Glouton {
         /* Passage à l'activite suivante dans le graphe */
         for (Sommet sommet : jobshop.JobShopGraph.ensembleSommets){
             for(Arc pred : sommet.predecesseurs){
-                if(pred.sommetArrive == SommetActivite){
+                if(pred.sommetDepart == SommetActivite){
                     result = sommet;
                 }
             }
@@ -114,8 +112,8 @@ public class Glouton {
         /*** Etape 1 : Mise de tous les sommets de depart dans la file d'attente ***/
         for (Sommet sommet : this.jobshop.JobShopGraph.ensembleSommets) {
             for (Arc pred : sommet.predecesseurs) {
-                if (pred.sommetArrive.id == "debut") {
-                    System.out.println("Mise du sommet " + sommet.id + " dans la file d'attente (predecesseur = " + sommet.predecesseurs[0].sommetArrive.id + ")");
+                if (pred.sommetDepart.id == "debut") {
+                    System.out.println("Mise du sommet " + sommet.id + " dans la file d'attente (predecesseur = " + sommet.predecesseurs[0].sommetDepart.id + ")");
                     file_attente[indice_file] = sommet;
                     indice_file++;
                 }
