@@ -45,9 +45,9 @@ public class Activite {
 
     public Integer duree(Machine mac){
         Integer result = null;
-        for(Integer i: this.MachinesNecessaires){
-            if(this.MachinesNecessaires[i]==mac.id){
-                result = i+1;
+        for(Integer m: this.MachinesNecessaires){
+            if(m==mac.id){
+                result = this.Durees[m-1];
             }
         }
         return result;

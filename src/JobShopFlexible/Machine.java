@@ -2,7 +2,7 @@ package JobShopFlexible;
 
 public class Machine {
 
-    public int id;
+    public Integer id;
 
     /*
     ** CONSTRUCTEUR

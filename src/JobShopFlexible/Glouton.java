@@ -1,5 +1,6 @@
 package JobShopFlexible;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Glouton {
@@ -45,10 +46,10 @@ public class Glouton {
     public Machine choixMachine(Activite activite){
         Integer duree = 1000 ;
         Machine machine = null;
-        for(Integer d:activite.Durees){
+        for(Integer d=0; d<activite.Durees.length; d++){
             if (activite.Durees[d] < duree) {
                 duree = activite.Durees[d];
-                machine = jobshop.tableauMachines[activite.MachinesNecessaires[d]-1];
+                machine = jobshop.tableauMachines[activite.MachinesNecessaires[d]];
             }
         }
         return machine;
@@ -63,9 +64,15 @@ public class Glouton {
         Integer count[] = new Integer[this.tableau_solutions.length];
         Arrays.fill(count,0);
         for(Infos i : tableau_solutions){
-            System.out.println("Processus : " + i.processus.id + " - Activité : " + i.processus.Activites[count[i.processus.id-1]].id + " - Machine : " + i.machine.id + " - Date début : " +
-                               i.date_debut + " - Date fin : " + i.date_fin);
-            count[i.processus.id-1]++;
+            if (i != null) {
+                if (i.processus.id != null) System.out.print("Processus : " + i.processus.id);
+                if (i.processus.Activites[count[i.processus.id - 1]].id != null)
+                    System.out.println(" - Activité : " + i.processus.Activites[count[i.processus.id - 1]].id);
+                if (i.machine.id != null) System.out.print(" - Machine : " + i.machine.id);
+                if (i.date_debut != null) System.out.print(" - Date début : " + i.date_debut);
+                if (i.date_fin != null) System.out.print(" - Date fin : " + i.date_fin);
+                count[i.processus.id - 1]++;
+            }
         }
         return 0;
     }
@@ -89,14 +96,14 @@ public class Glouton {
     }
 
     /******* Choix des prochaines activites a executer *******/
-    public Infos[] choixActivite(){
-        Infos[] resultats = {};
+    public ArrayList<Infos> choixActivite(){
+        ArrayList<Infos> resultats = new ArrayList<Infos>();
         Integer compteur = 0;
         Machine mac;
         for(Sommet s :file_attente){
             mac = choixMachine(s.activite);
             if(mac != null) {
-                resultats[compteur] = new Infos(mac, s.activite, s.activite.processus,-1, s.activite.duree(mac));
+                resultats.add(new Infos(mac, s.activite, s.processus, -1, s.activite.duree(mac)));
                 compteur++;
             }
         }
@@ -134,13 +141,15 @@ public class Glouton {
         /*** Etape 2 : Parmi les activites en attente d'etre executees, choisir lesquelles on execute ***/
         boolean fini = false;
         while (!fini) {
-            Infos[] tableau_infos = choixActivite();
+            ArrayList<Infos> tableau_infos = choixActivite();
 
             /*** Etape 3 : On execute chaque activite ***/
             for(Infos i:tableau_infos){
                 i.date_debut = dates[i.processus.id-1];
                 i.refresh();
-                dates[i.processus.id-1]+=i.duree;
+                if (i.duree != null){
+                    dates[i.processus.id-1]+=i.duree;
+                }
             }
 
             /*** Etape 4 : On verifie si on a fini ***/

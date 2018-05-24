@@ -23,7 +23,8 @@ public class Infos {
         this.processus = processus;
         this.date_debut = date_debut;
         this.duree = duree;
-        this.date_fin = date_debut+duree;
+        if (duree != null) this.date_fin = date_debut+duree;
+        else this.date_fin = -1;
     }
 
     /*
@@ -31,6 +32,8 @@ public class Infos {
      */
 
     public void refresh() {
-        this.date_fin = this.date_debut + this.duree;
+        if (duree != null){
+            this.date_fin = this.date_debut + this.duree;
+        }
     }
 }
