@@ -18,10 +18,11 @@ public class Graphe {
         this.indiceSommets = -1;
     }
 
+    /** Fonction d'ajout d'un sommet --> Fonctionne ! **/
     public int ajouterSommet (Sommet sommet){
         this.ensembleSommets.add(sommet);
         this.indiceSommets++;
-        System.out.println("*** Sommet " + sommet.id + " ajouté avec succès");
+        //System.out.println("*** Sommet " + sommet.id + " ajouté avec succès");
         return 0;
     }
 

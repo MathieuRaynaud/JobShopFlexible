@@ -42,18 +42,18 @@ public class JobShop {
                     Integer nbActivite = 1;
                     int indice = 1;
                     int i, nbMachines = 0;
-                    System.out.println("\nProcessus " + currentLine + " : " + parts[0] + " machines.");
+                    //System.out.println("\nProcessus " + currentLine + " : " + parts[0] + " machines.");
                     this.indiceProc = currentLine - 1;
                     this.Processus[indiceProc] = new Processus(currentLine, Integer.parseInt(parts[0]));
                     int compteur_act = 0;
                     while(indice < parts.length){
                         String numActivite = currentLine.toString() + '.' + nbActivite.toString();
-                        System.out.println("  Activité " + numActivite + " - Machine(s) nécessaire(s)  : " + parts[indice]);
+                        //System.out.println("  Activité " + numActivite + " - Machine(s) nécessaire(s)  : " + parts[indice]);
                         nbMachines = Integer.parseInt(parts[indice]);
                         Processus[indiceProc].ajouterActivite(new Activite(nbActivite,nbMachines,Processus[indiceProc]));
                         i = indice+1;
                         while(i <= indice+nbMachines*2){
-                            System.out.println("    Machine " + parts[i] + " - Duree : " + parts[i+1]);
+                            //System.out.println("    Machine " + parts[i] + " - Duree : " + parts[i+1]);
                             Processus[indiceProc].Activites[compteur_act].ajouterMachine(Integer.parseInt(parts[i]), Integer.parseInt(parts[i+1]));
                             i += 2;
                         }
@@ -62,11 +62,12 @@ public class JobShop {
                         nbTotalActivites++;
                         compteur_act++;
                     }
-                    System.out.println("\n*-----------------------------------*");
+                    //System.out.println("\n*-----------------------------------*");
                 }
                 currentLine++;
             }
-
+            System.out.println("Fichier de données extrait avec succès");
+            System.out.println("\n*-----------------------------------*");
         } catch (IOException | IndexOutOfBoundsException err) {}
 
         /** Initialisaiton du graphe et ajout des sommets **/
