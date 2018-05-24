@@ -71,19 +71,19 @@ public class JobShop {
 
         /** Initialisaiton du graphe et ajout des sommets **/
         JobShopGraph = new Graphe();
-        Sommet sommetDebut = new Sommet("debut",0, null);
+        Sommet sommetDebut = new Sommet("debut",0, null, null);
         JobShopGraph.ajouterSommet(sommetDebut);
-        Sommet sommetFin = new Sommet("fin",Processus.length, null);
+        Sommet sommetFin = new Sommet("fin",Processus.length, null, null);
         Sommet tmp;
         for (int i=0; i<Processus.length; i++){
             for (int j=0; j<Processus[i].nbActivites; j++){
                 if (j==0){
-                    tmp = new Sommet(Processus[i].id.toString()+"."+Processus[i].Activites[j].id.toString(),1,Processus[i].Activites[j]);
+                    tmp = new Sommet(Processus[i].id.toString()+"."+Processus[i].Activites[j].id.toString(),1,Processus[i], Processus[i].Activites[j]);
                     JobShopGraph.ajouterSommet(tmp);
                     JobShopGraph.ajouterArc(sommetDebut,tmp,0);
                 }
                 else {
-                    tmp = new Sommet(Processus[i].id.toString() + "." + Processus[i].Activites[j].id.toString(), 1, Processus[i].Activites[j]);
+                    tmp = new Sommet(Processus[i].id.toString() + "." + Processus[i].Activites[j].id.toString(), 1, Processus[i], Processus[i].Activites[j]);
                     for (int k = 0; k < tmp.nbpredecesseurs; k++) {
                         JobShopGraph.ajouterSommet(tmp);
                     }

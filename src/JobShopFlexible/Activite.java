@@ -1,7 +1,5 @@
 package JobShopFlexible;
 
-import static java.lang.System.exit;
-
 public class Activite {
 
     /*

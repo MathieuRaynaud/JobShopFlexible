@@ -103,6 +103,21 @@ public class Glouton {
         return resultats;
     }
 
+    /** Initialisation de la file d'attente : mise de tous les sommets qui ont pour prédecesseur le debut --> Fonctionne ! **/
+    private void init_file_attente(){
+        for (Sommet sommet : this.jobshop.JobShopGraph.ensembleSommets) {
+            for (Arc pred : sommet.predecesseurs) {
+                if (pred != null) {
+                    if (pred.sommetDepart.id == "debut") {
+                        //System.out.println("Mise du sommet " + sommet.id + " dans la file d'attente (predecesseur = " + sommet.predecesseurs[0].sommetDepart.id + ")");
+                        file_attente[indice_file] = sommet;
+                        indice_file++;
+                    }
+                }
+            }
+        }
+    }
+
     /******* FONCTION PRINCIPALE : MISE EN PLACE DE L'HEURISTIQUE *******/
 
     /*
@@ -114,15 +129,7 @@ public class Glouton {
         Arrays.fill(dates, 0);
 
         /*** Etape 1 : Mise de tous les sommets de depart dans la file d'attente ***/
-        for (Sommet sommet : this.jobshop.JobShopGraph.ensembleSommets) {
-            for (Arc pred : sommet.predecesseurs) {
-                if (pred.sommetDepart.id == "debut") {
-                    System.out.println("Mise du sommet " + sommet.id + " dans la file d'attente (predecesseur = " + sommet.predecesseurs[0].sommetDepart.id + ")");
-                    file_attente[indice_file] = sommet;
-                    indice_file++;
-                }
-            }
-        }
+        init_file_attente();
 
         /*** Etape 2 : Parmi les activites en attente d'etre executees, choisir lesquelles on execute ***/
         boolean fini = false;

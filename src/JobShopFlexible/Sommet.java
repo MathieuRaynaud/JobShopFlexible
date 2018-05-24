@@ -10,15 +10,17 @@ public class Sommet {
     public int nbpredecesseurs;
     public Arc[] predecesseurs;
     public int indicePredecesseurs;
+    public Processus processus;
     public Activite activite;
 
 
     // CONSTRUCTEUR
-    public Sommet (String nom, int nbpredecesseurs, Activite activite) {
+    public Sommet (String nom, int nbpredecesseurs, Processus processus, Activite activite) {
         this.id = nom;
         this.nbpredecesseurs = nbpredecesseurs;
         this.predecesseurs = new Arc[nbpredecesseurs];
         this.indicePredecesseurs = nbpredecesseurs-1;
+        this.processus = processus;
         this.activite = activite;
     }
 
