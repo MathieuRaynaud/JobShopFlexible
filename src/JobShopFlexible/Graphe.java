@@ -6,7 +6,7 @@ public class Graphe {
 
     public int indiceSommets;
     public ArrayList<Sommet> ensembleSommets;
-    public ArrayList<Integer> dates_debut_au_plus_tot;
+    public ArrayList<Integer> datesDebutAuPlusTot;
 
     /*
      * Constructeur
@@ -41,7 +41,26 @@ public class Graphe {
     /**
      * TODO : Calcul du cmax du graphe + appel a une fonction de calcul de la date de debut au plus tot (+ detection de cycles --> solution avec -2)
      */
+
+    /*
+    ** Fonction récursive de calcul de la date au plus tot d'un sommet
+     */
+
+    public Integer dateAuPlusTot(Sommet sommet){
+        Integer result = 0;
+        if(datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet))!=-1){
+            result = datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet));
+        }
+        else{
+            for(Arc a : sommet.predecesseurs){
+                result = Integer.max(dateAuPlusTot(a.sommetDepart),result);
+            }
+        }
+        return result;
+    }
     public Integer cMax(){
-        return 0;
+        Integer cmax = 0;
+
+        return cmax;
     }
 }
