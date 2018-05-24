@@ -17,8 +17,8 @@ public class Graphe {
     }
 
     public int ajouterSommet (Sommet sommet){
-        ensembleSommets.add(sommet);
-        indiceSommets++;
+        this.ensembleSommets.add(sommet);
+        this.indiceSommets++;
         return 0;
     }
 
@@ -38,29 +38,41 @@ public class Graphe {
         return 0;
     }
 
-    /**
-     * TODO : Calcul du cmax du graphe + appel a une fonction de calcul de la date de debut au plus tot (+ detection de cycles --> solution avec -2)
-     */
-
     /*
     ** Fonction récursive de calcul de la date au plus tot d'un sommet
      */
 
     public Integer dateAuPlusTot(Sommet sommet){
+        boolean cycle = true;
         Integer result = 0;
+        datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),-2) ; // Mise à -2 pour la détection de cycles
         if(datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet))!=-1){
             result = datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet));
         }
         else{
             for(Arc a : sommet.predecesseurs){
-                result = Integer.max(dateAuPlusTot(a.sommetDepart),result);
+                if (datesDebutAuPlusTot.get(ensembleSommets.indexOf(a.sommetDepart))!=-2) {
+                    cycle = false;
+                    result = Integer.max(dateAuPlusTot(a.sommetDepart) + a.duree, result);
+                }
             }
         }
-        return result;
+        if (cycle) {
+            System.out.println("Cycle détecté, arrêt de la recherche de la date au plus tot sur le cycle");
+            return -1;
+        }
+        else return result;
     }
+
+    /*
+    ** Fonction de calcul du cMax du graphe
+     */
     public Integer cMax(){
         Integer cmax = 0;
-
+        Sommet fin = ensembleSommets.get(ensembleSommets.lastIndexOf(ensembleSommets));
+        for (Arc a : fin.predecesseurs){
+            cmax = Integer.max(cmax, dateAuPlusTot(a.sommetDepart));
+        }
         return cmax;
     }
 }
