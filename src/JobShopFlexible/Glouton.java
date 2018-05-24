@@ -14,7 +14,7 @@ public class Glouton {
      */
 
     public JobShop jobshop;
-    public Infos[] tableau_solutions;
+    public ArrayList<Infos> tableau_solutions;
     public Sommet[] file_attente;
     private Integer indice_file;
 
@@ -23,7 +23,7 @@ public class Glouton {
      */
 
     public Glouton(JobShop jobshop){
-        this.tableau_solutions = new Infos[jobshop.Processus.length];
+        this.tableau_solutions = new ArrayList<Infos>();
         this.jobshop = jobshop;
         this.file_attente = new Sommet[jobshop.Processus.length];
         this.indice_file = 0;
@@ -61,17 +61,21 @@ public class Glouton {
      */
     public Integer afficherTableau(){
         System.out.println("Affichage du tableau solution : ");
-        Integer count[] = new Integer[this.tableau_solutions.length];
+        Integer process_count = 0;
+        Integer activity_count = 0;
+
+        Integer count[] = new Integer[this.tableau_solutions.size()];
         Arrays.fill(count,0);
         for(Infos i : tableau_solutions){
             if (i != null) {
                 if (i.processus.id != null) System.out.print("Processus : " + i.processus.id);
                 if (i.processus.Activites[count[i.processus.id - 1]].id != null)
-                    System.out.println(" - Activité : " + i.processus.Activites[count[i.processus.id - 1]].id);
+                    System.out.print(" - Activité : " + i.processus.Activites[count[i.processus.id - 1]].id);
                 if (i.machine.id != null) System.out.print(" - Machine : " + i.machine.id);
                 if (i.date_debut != null) System.out.print(" - Date début : " + i.date_debut);
                 if (i.date_fin != null) System.out.print(" - Date fin : " + i.date_fin);
                 count[i.processus.id - 1]++;
+                System.out.println();
             }
         }
         return 0;
@@ -104,6 +108,7 @@ public class Glouton {
             mac = choixMachine(s.activite);
             if(mac != null) {
                 resultats.add(new Infos(mac, s.activite, s.processus, -1, s.activite.duree(mac)));
+                System.out.println("Ajout de l'activite " + s.processus.id +"."+s.activite.id + " à l'ensemble des solutions");
                 compteur++;
             }
         }
@@ -141,10 +146,10 @@ public class Glouton {
         /*** Etape 2 : Parmi les activites en attente d'etre executees, choisir lesquelles on execute ***/
         boolean fini = false;
         while (!fini) {
-            ArrayList<Infos> tableau_infos = choixActivite();
+            tableau_solutions = choixActivite();
 
             /*** Etape 3 : On execute chaque activite ***/
-            for(Infos i:tableau_infos){
+            for(Infos i:tableau_solutions){
                 i.date_debut = dates[i.processus.id-1];
                 i.refresh();
                 if (i.duree != null){
@@ -158,6 +163,7 @@ public class Glouton {
                 if (s.id == "fin") fini = false;
             }
         }
+
         /*** Etape 4 : On affiche le resultat graphique ***/
         this.afficherTableau();
 
