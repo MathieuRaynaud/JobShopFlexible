@@ -13,18 +13,21 @@ public class Graphe {
      */
 
     public Graphe(){
+        this.ensembleSommets = new ArrayList<Sommet>();
+        this.datesDebutAuPlusTot = new ArrayList<Integer>();
         this.indiceSommets = -1;
     }
 
     public int ajouterSommet (Sommet sommet){
         this.ensembleSommets.add(sommet);
         this.indiceSommets++;
+        System.out.println("*** Sommet " + sommet.id + " ajouté avec succès");
         return 0;
     }
 
     /***
      * Fonction de mise à jour du cout de l'arc
-     */
+     ***/
     public Integer modifierArc(Sommet depart, Sommet arrivee, Integer nouveauCout){
         arrivee.modifierArc(depart,nouveauCout);
         return 0;
@@ -32,15 +35,15 @@ public class Graphe {
 
     /***
      * Fonction d'ajout d'un arc
-     */
+     ***/
     public Integer ajouterArc(Sommet depart, Sommet arrivee, Integer cout){
         arrivee.ajouterArc(depart,cout);
         return 0;
     }
 
-    /*
+    /***
     ** Fonction récursive de calcul de la date au plus tot d'un sommet
-     */
+     ***/
 
     public Integer dateAuPlusTot(Sommet sommet){
         boolean cycle = true;
@@ -64,9 +67,9 @@ public class Graphe {
         else return result;
     }
 
-    /*
+    /***
     ** Fonction de calcul du cMax du graphe
-     */
+     ***/
     public Integer cMax(){
         Integer cmax = 0;
         Sommet fin = ensembleSommets.get(ensembleSommets.lastIndexOf(ensembleSommets));
