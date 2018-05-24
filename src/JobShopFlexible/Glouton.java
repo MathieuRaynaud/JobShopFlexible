@@ -104,6 +104,10 @@ public class Glouton {
     }
 
     /******* FONCTION PRINCIPALE : MISE EN PLACE DE L'HEURISTIQUE *******/
+
+    /*
+       TODO : Corriger l'heuristique : le calcul doit se faire à partir des tableaux, et le graphe doit être construit en sortie en tant que représentation de résultat
+     */
     public Integer heuristiqueGloutonne() {
         /*** Initialisation du tableau de dates ***/
         Integer[] dates = new Integer[this.jobshop.Processus.length];
