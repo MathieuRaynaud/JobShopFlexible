@@ -3,6 +3,9 @@ package JobShopFlexible;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static JobShopFlexible.Generic.*;
+import static java.lang.Thread.sleep;
+
 public class Glouton {
 
     /*
@@ -14,9 +17,8 @@ public class Glouton {
      */
 
     public JobShop jobshop;
-    public ArrayList<Infos> tableau_solutions;
-    public Sommet[] file_attente;
-    private Integer indice_file;
+    public ArrayList<Infos> tableau_solutions; // IL VA SUREMENT FALLOIR PASSER A UN TABLEAU DE SOMMETS
+    public ArrayList<Sommet> file_attente;
 
     /*
      *  Constructeur
@@ -25,8 +27,7 @@ public class Glouton {
     public Glouton(JobShop jobshop){
         this.tableau_solutions = new ArrayList<Infos>();
         this.jobshop = jobshop;
-        this.file_attente = new Sommet[jobshop.Processus.length];
-        this.indice_file = 0;
+        this.file_attente = new ArrayList<Sommet>();
     }
 
     /*
@@ -42,15 +43,39 @@ public class Glouton {
             - Pour chaque processus, l'ordre des activites doit être respecté --> Géré par la file_attente
      *******************************************************************************************************************************************************/
 
+    /******* Fonction de choix du sommet a exectuer au plus tot ********/
+    public Sommet sommetAuPlusTot(ArrayList<Sommet> list){
+        Integer mem = Integer.MAX_VALUE;
+        Sommet result = null;
+        for(Sommet s:list){
+            if (s.activite.date_debut < mem) {
+                result = s;
+                mem = s.activite.date_debut;
+            }
+        }
+        return result;
+    }
+
+    /****** Fonction pour savoir si une machine est occupee ou non *****/
+    public boolean isOccupied(Machine m, Integer debut, Integer fin, ArrayList<Machine> machines, ArrayList<Integer> deb, ArrayList<Integer> f){
+        boolean occ = false;
+        if (isIncluded(m,machines)) {
+            Integer index = machines.indexOf(m);
+            for (Object o : machines){
+                if (o == m){
+                    occ = (occ || (!((debut>f.get(index)) || fin < deb.get(index))));
+                }
+            }
+        }
+        return occ;
+    }
+
     /******* Choix de la machine disponible la plus rapide *******/
     public Machine choixMachine(Activite activite){
         Integer duree = 1000 ;
         Machine machine = null;
-        for(Integer d=0; d<activite.Durees.length; d++){
-            if (activite.Durees[d] < duree) {
-                duree = activite.Durees[d];
-                machine = jobshop.tableauMachines[activite.MachinesNecessaires[d]];
-            }
+        for (Integer i : activite.MachinesNecessaires) {
+            if (activite.duree(jobshop.getMachineByID(i)) < duree) machine = jobshop.getMachineByID(i);
         }
         return machine;
     }
@@ -81,40 +106,6 @@ public class Glouton {
         return 0;
     }
 
-    /******* Passage à l'activité suivante *******/
-    public Sommet suivant(Sommet SommetActivite){
-        Sommet result = null;
-        /* Passage à l'activite suivante dans le graphe */
-        for (Sommet sommet : jobshop.JobShopGraph.ensembleSommets){
-            for(Arc pred : sommet.predecesseurs){
-                if(pred.sommetDepart == SommetActivite){
-                    result = sommet;
-                }
-            }
-        }
-        /* Passage à l'activite suivante dans la file d'attente */
-        for(int i=0; i<file_attente.length; i++){
-            if(file_attente[i] == SommetActivite) file_attente[i] = result;
-        }
-        return result;
-    }
-
-    /******* Choix des prochaines activites a executer *******/
-    public ArrayList<Infos> choixActivite(){
-        ArrayList<Infos> resultats = new ArrayList<Infos>();
-        Integer compteur = 0;
-        Machine mac;
-        for(Sommet s :file_attente){
-            mac = choixMachine(s.activite);
-            if(mac != null) {
-                resultats.add(new Infos(mac, s.activite, s.processus, -1, s.activite.duree(mac)));
-                System.out.println("Ajout de l'activite " + s.processus.id +"."+s.activite.id + " à l'ensemble des solutions");
-                compteur++;
-            }
-        }
-        return resultats;
-    }
-
     /** Initialisation de la file d'attente : mise de tous les sommets qui ont pour prédecesseur le debut --> Fonctionne ! **/
     private void init_file_attente(){
         for (Sommet sommet : this.jobshop.JobShopGraph.ensembleSommets) {
@@ -122,10 +113,34 @@ public class Glouton {
                 if (pred != null) {
                     if (pred.sommetDepart.id == "debut") {
                         //System.out.println("Mise du sommet " + sommet.id + " dans la file d'attente (predecesseur = " + sommet.predecesseurs[0].sommetDepart.id + ")");
-                        file_attente[indice_file] = sommet;
-                        indice_file++;
+                        file_attente.add(sommet);
                     }
                 }
+            }
+        }
+    }
+
+
+    /******* Initial : Créer une solution non acceptable avec les meilleures machines pour chaque activite *******/
+    public void initial(){
+        for (Sommet s : jobshop.JobShopGraph.ensembleSommets){
+            System.out.println(s.id + " en traitement");
+            if (jobshop.JobShopGraph.estDernier(s)){
+                s.activite.machineChoisie = choixMachine(s.activite);
+                jobshop.JobShopGraph.modifierArc(s,jobshop.JobShopGraph.getSommetByID("fin"),s.activite.machineChoisie, s.activite.duree(s.activite.machineChoisie));
+            }
+            else if (!(s.id.equals("debut")) && !(s.id.equals("fin"))){
+                s.activite.machineChoisie = choixMachine(s.activite);
+                jobshop.JobShopGraph.modifierArc(s,jobshop.JobShopGraph.suivantByID(s),s.activite.machineChoisie,s.activite.duree(s.activite.machineChoisie));
+            }
+        }
+    }
+
+    /**** Mise a jour de l'ensemble des dates au plus tot des sommets du graphe ****/
+    private void majDatesAuPlusTot() {
+        for (Sommet s : jobshop.JobShopGraph.ensembleSommets){
+            if (!s.id.equals("debut") && !s.id.equals("fin")) {
+                s.activite.date_debut = jobshop.JobShopGraph.dateAuPlusTot(s);
             }
         }
     }
@@ -143,50 +158,18 @@ public class Glouton {
         /*** Etape 1 : Mise de tous les sommets de depart dans la file d'attente ***/
         init_file_attente();
 
-        /*** Etape 2 : Parmi les activites en attente d'etre executees, choisir lesquelles on execute ***/
-        boolean fini = false;
-        while (!fini) {
-            tableau_solutions = choixActivite();
+        /*****************************************/
+        /***                                   ***/
+        /*** JUSQU'ICI TOUT MARCHE COMME PREVU ***/
+        /***                                   ***/
+        /*****************************************/
 
-            /*** Etape 3 : On execute chaque activite ***/
-            for(Infos i:tableau_solutions){
-                i.date_debut = dates[i.processus.id-1];
-                i.refresh();
-                if (i.duree != null){
-                    dates[i.processus.id-1]+=i.duree;
-                }
-            }
 
-            /*** Etape 4 : On verifie si on a fini ***/
-            fini = true;
-            for (Sommet s : file_attente) {
-                if (s.id == "fin") fini = false;
-            }
-        }
-
-        /*** Etape 4 : On affiche le resultat graphique ***/
-        this.afficherTableau();
+        initial();
+        majDatesAuPlusTot();
+        jobshop.JobShopGraph.afficherGraphe();
 
         return 0;
     }
 
 }
-
-
-
-
-/******************** FONCTION QUI NE SERT A PRIORI A RIEN DU TOUT DU TOUT ... ********************/
-/******* Execution d'une activite et renvoi des informations liees *******/
-    /*public Infos executeActivite(Activite activite, Integer date_debut){
-        Integer duree = 0;
-        Machine machine = choixMachine(activite);
-        for(Integer m:activite.MachinesNecessaires){
-            if(activite.MachinesNecessaires[m]==machine.id){
-                jobshop.tableauMachines[activite.MachinesNecessaires[m]-1].estDispo = false;
-                duree = activite.Durees[m];
-            }
-        }
-        Infos result = new Infos(machine,activite,activite.processus,date_debut,duree);
-        return result;
-    }*/
-/**************************************************************************************************/

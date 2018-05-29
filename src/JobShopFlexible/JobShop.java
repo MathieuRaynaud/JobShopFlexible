@@ -11,8 +11,8 @@ public class JobShop {
     public Machine[] tableauMachines;
 
     public JobShop (File file){
-        BufferedReader br = null;
-        FileReader fr = null;
+        BufferedReader br;
+        FileReader fr;
         Integer currentLine = 0;
         Integer nbTotalActivites = 0;
 
@@ -81,7 +81,7 @@ public class JobShop {
                 if (j==0){
                     tmp = new Sommet(Processus[i].id.toString()+"."+Processus[i].Activites[j].id.toString(),1,Processus[i], Processus[i].Activites[j]);
                     JobShopGraph.ajouterSommet(tmp);
-                    JobShopGraph.ajouterArc(sommetDebut,tmp,0);
+                    JobShopGraph.ajouterArc(sommetDebut,tmp,null,0);
                 }
                 else {
                     tmp = new Sommet(Processus[i].id.toString() + "." + Processus[i].Activites[j].id.toString(), 1, Processus[i], Processus[i].Activites[j]);
@@ -92,6 +92,13 @@ public class JobShop {
             }
         }
         JobShopGraph.ajouterSommet(sommetFin);
+    }
+
+    public Machine getMachineByID(Integer id){
+        for (Machine m : tableauMachines){
+            if (m.id == id) return m;
+        }
+        return null;
     }
 
     public static void main (String[] args){

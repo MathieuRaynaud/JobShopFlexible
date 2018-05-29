@@ -11,6 +11,9 @@ public class Activite {
     public int nbMachinesNecessaires;
     public Integer[] MachinesNecessaires;
     public Integer[] Durees;
+    public Integer date_debut;
+    public Integer date_fin;
+    public Machine machineChoisie;
 
     private int indiceMachine;
 
@@ -24,6 +27,9 @@ public class Activite {
         this.Durees = new Integer[nbMachinesNecessaires];
         this.indiceMachine = 0;
         this.processus = processus;
+        this.date_debut = -1;
+        this.date_fin = 0;
+        this.machineChoisie = null;
     }
 
     /*
@@ -45,11 +51,28 @@ public class Activite {
 
     public Integer duree(Machine mac){
         Integer result = null;
+        for (Integer m=0; m<MachinesNecessaires.length; m++) {
+            if (MachinesNecessaires[m].equals(mac.id)) {
+                result = this.Durees[m];
+                //System.out.println("Activite " + this.id.toString() + " Machine " + mac.id.toString() + " : " + result.toString());
+            }
+        }
+        return result;
+    }
+
+    public Integer dureeInt(Integer machine){
+        Integer result = null;
         for(Integer m: this.MachinesNecessaires){
-            if(m==mac.id){
+            if(m==machine){
                 result = this.Durees[m-1];
             }
         }
         return result;
+    }
+
+    public void refresh(){
+        for (Integer mac: MachinesNecessaires) {
+            this.date_fin = date_debut + dureeInt(mac);
+        }
     }
 }
