@@ -2,6 +2,7 @@ package JobShopFlexible;
 
 import javax.xml.bind.SchemaOutputResolver;
 import java.io.*;
+import JobShopFlexible.Generic.*;
 
 public class JobShop {
 
@@ -54,7 +55,10 @@ public class JobShop {
                         i = indice+1;
                         while(i <= indice+nbMachines*2){
                             //System.out.println("    Machine " + parts[i] + " - Duree : " + parts[i+1]);
-                            Processus[indiceProc].Activites[compteur_act].ajouterMachine(Integer.parseInt(parts[i]), Integer.parseInt(parts[i+1]));
+                            if (dejaCreee(Integer.parseInt(parts[i]))){
+                                Processus[indiceProc].Activites[compteur_act].ajouterMachine(machine(Integer.parseInt(parts[i])), Integer.parseInt(parts[i+1]));
+                            }
+                            else Processus[indiceProc].Activites[compteur_act].ajouterMachine(new Machine(Integer.parseInt(parts[i])), Integer.parseInt(parts[i+1]));
                             i += 2;
                         }
                         indice = i;
@@ -95,6 +99,22 @@ public class JobShop {
     }
 
     public Machine getMachineByID(Integer id){
+        for (Machine m : tableauMachines){
+            if (m.id == id) return m;
+        }
+        return null;
+    }
+
+    public boolean dejaCreee(Integer machine){
+        for (Machine m : tableauMachines){
+            if (m.id == machine){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Machine machine(Integer id){
         for (Machine m : tableauMachines){
             if (m.id == id) return m;
         }

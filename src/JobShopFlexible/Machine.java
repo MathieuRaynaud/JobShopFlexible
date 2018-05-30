@@ -7,7 +7,7 @@ public class Machine {
     /*
     ** CONSTRUCTEUR
      */
-    public Machine (int id){
+    public Machine (Integer id){
         this.id = id;
     }
 

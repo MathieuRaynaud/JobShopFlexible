@@ -80,13 +80,20 @@ public class Glouton {
         Integer duree = 1000 ;
         Integer dureeCalculee;
         Machine machine = null;
-        for (Integer i : activite.MachinesNecessaires) {
+        for (Machine m : activite.MachinesNecessaires){
+            dureeCalculee = activite.duree(m);
+            if (dureeCalculee < duree){
+                machine = m;
+                duree = dureeCalculee;
+            }
+        }
+        /*for (Integer i : activite.MachinesNecessaires) {
             dureeCalculee = activite.duree(jobshop.getMachineByID(i));
             if (dureeCalculee < duree){
                 machine = jobshop.getMachineByID(i);
                 duree = dureeCalculee;
             }
-        }
+        }*/
         return machine;
     }
 
@@ -167,16 +174,36 @@ public class Glouton {
         /*** Etape 1 : Mise de tous les sommets de depart dans la file d'attente ***/
         init_file_attente();
 
+        /*** Etape 2 : Creation d'une solution initiale avec les machines les plus rapides pour chaque activite ***/
+        initial();
+        jobshop.JobShopGraph.lierSommets();
+        majDatesAuPlusTot();
+
         /*****************************************/
         /***                                   ***/
         /*** JUSQU'ICI TOUT MARCHE COMME PREVU ***/
         /***                                   ***/
         /*****************************************/
 
+        /*** Etape 3 : Mise a jour de la solution jusqu'a ce qu'elle soit acceptable ***/
 
-        initial();
-        jobshop.JobShopGraph.lierSommets();
-        majDatesAuPlusTot();
+        // TODO : Gerer les conflits entre machines
+
+        // Prendre le moins couteux entre le decalage du depart et le changement de machine
+        Conflit conflit = jobshop.JobShopGraph.detecterConflit();
+        if (conflit != null){
+            System.out.println("   * Conflit detecte !");
+            System.out.println("      * Sommet 1 : " + conflit.sommet1.id);
+            System.out.println("      * Sommet 2 : " + conflit.sommet2.id);
+            System.out.println("      * Machine : " + conflit.machine.id.toString());
+            System.out.println("      * Date de debut 1 : " + conflit.sommet1.activite.date_debut);
+            System.out.println("      * Date de debut 2 : " + conflit.sommet2.activite.date_debut);
+        }
+
+        jobshop.JobShopGraph.gererConflit(conflit);
+
+        /*** Etape finale : Affichage du graphe solution ***/
+
         jobshop.JobShopGraph.afficherGraphe();
 
         return 0;

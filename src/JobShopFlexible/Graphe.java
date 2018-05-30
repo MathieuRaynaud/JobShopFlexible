@@ -201,4 +201,85 @@ public class Graphe {
         }
     }
 
+    public Conflit detecterConflit(){
+        for (Sommet s1 : ensembleSommets){
+            for (Sommet s2 : ensembleSommets){
+                if (s1 != s2 && !s1.id.equals("debut") && !s1.id.equals("fin") && !s2.id.equals("debut") && !s2.id.equals("fin")){
+                    System.out.println("Machine " +s1.id+ " : " + s1.activite.machineChoisie.id.toString());
+                    System.out.println("Machine " +s2.id+ " : " + s2.activite.machineChoisie.id.toString());
+                    if (s1.activite.machineChoisie == s2.activite.machineChoisie){
+                        System.out.println(s1.id + "vs" + s2.id);
+                        Conflit result = new Conflit(s1,s2,s1.activite.machineChoisie);
+                        if (s2.activite.date_debut>s1.activite.date_debut && s1.activite.date_fin>s2.activite.date_debut){
+                            return result;
+                        }
+                        else if (s1.activite.date_debut>s2.activite.date_debut && s2.activite.date_fin>s1.activite.date_debut){
+
+                            return result;
+                        }
+                        else if (s1.activite.date_debut == s2.activite.date_debut){
+                            System.out.println(s2.processus.id.toString() + "." + s2.activite.id.toString());
+                            return result;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public void gererConflit (Conflit conflit){
+        System.out.println("Gestion du conflit entre les activites " + conflit.sommet1.id +" et " + conflit.sommet2.id);
+
+        Sommet priorite;
+        Sommet esclave;
+
+        boolean autreMachinePourEsclave;
+        boolean autreMachinePourPriorite;
+
+        Integer dureeSommet1;
+        Integer dureeSommet2;
+
+        /* Definition du sommet prioritaire par rapport a la date de debut de travail */
+        if (conflit.sommet1.activite.date_debut < conflit.sommet2.activite.date_debut){
+            priorite = conflit.sommet1;
+            esclave = conflit.sommet2;
+        }
+        else if (conflit.sommet2.activite.date_debut < conflit.sommet1.activite.date_debut){
+            priorite = conflit.sommet2;
+            esclave = conflit.sommet1;
+        }
+        else {
+            /* Definition du sommet prioritaire par rapport a la duree de travail */
+            if (conflit.sommet1.activite.duree(conflit.sommet1.activite.machineChoisie) <= conflit.sommet2.activite.duree(conflit.sommet2.activite.machineChoisie)) {
+                priorite = conflit.sommet1;
+                esclave = conflit.sommet2;
+            } else {
+                priorite = conflit.sommet2;
+                esclave = conflit.sommet1;
+            }
+        }
+
+        System.out.println("Sommet prioritaire : " + priorite.id);
+        System.out.println("Sommet esclave : " + esclave.id);
+        if (esclave.activite.autreMachine()) {
+            esclave.activite.bannirMachine(esclave.activite.machineChoisie);
+            if (esclave.activite.machinesDispo()) {
+                autreMachinePourEsclave = true;
+                System.out.println("L'activite " + esclave.id.toString() + " peut etre executee avec une autre machine");
+            } else
+                System.out.println("Toutes les autres machines de l'activite " + esclave.id.toString() + " sont banies");
+        }
+        else if (priorite.activite.autreMachine()) {
+            priorite.activite.bannirMachine(priorite.activite.machineChoisie);
+            if (priorite.activite.machinesDispo()) {
+                autreMachinePourPriorite = true;
+                System.out.println("L'activite " + priorite.id.toString() + " peut etre executee avec une autre machine");
+            } else
+                System.out.println("Toutes les autres machines de l'activite " + priorite.id.toString() + " sont banies");
+        }
+
+        // TODO : Gérer le changement de machine ou le decalage !
+    }
+
 }
