@@ -70,12 +70,22 @@ public class Glouton {
         return occ;
     }
 
+    /*************************************************************/
     /******* Choix de la machine disponible la plus rapide *******/
+    /*******                                               *******/
+    /****************** FONCTIONNE PARFAITEMENT ******************/
+    /*******                                               *******/
+    /*************************************************************/
     public Machine choixMachine(Activite activite){
         Integer duree = 1000 ;
+        Integer dureeCalculee;
         Machine machine = null;
         for (Integer i : activite.MachinesNecessaires) {
-            if (activite.duree(jobshop.getMachineByID(i)) < duree) machine = jobshop.getMachineByID(i);
+            dureeCalculee = activite.duree(jobshop.getMachineByID(i));
+            if (dureeCalculee < duree){
+                machine = jobshop.getMachineByID(i);
+                duree = dureeCalculee;
+            }
         }
         return machine;
     }
@@ -124,7 +134,6 @@ public class Glouton {
     /******* Initial : Créer une solution non acceptable avec les meilleures machines pour chaque activite *******/
     public void initial(){
         for (Sommet s : jobshop.JobShopGraph.ensembleSommets){
-            System.out.println(s.id + " en traitement");
             if (jobshop.JobShopGraph.estDernier(s)){
                 s.activite.machineChoisie = choixMachine(s.activite);
                 jobshop.JobShopGraph.modifierArc(s,jobshop.JobShopGraph.getSommetByID("fin"),s.activite.machineChoisie, s.activite.duree(s.activite.machineChoisie));
@@ -166,6 +175,7 @@ public class Glouton {
 
 
         initial();
+        jobshop.JobShopGraph.lierSommets();
         majDatesAuPlusTot();
         jobshop.JobShopGraph.afficherGraphe();
 

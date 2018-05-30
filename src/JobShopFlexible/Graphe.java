@@ -45,19 +45,25 @@ public class Graphe {
         return 0;
     }
 
+    /*************************************************************/
+    /******* Calcul du max de la date de debut au plus tot *******/
+    /*******                                               *******/
+    /****************** FONCTIONNE PARFAITEMENT ******************/
+    /*******                                               *******/
+    /*************************************************************/
     public Integer maxPred(Sommet sommet){
         boolean cycle = false;
-        Integer result = 0;
-        System.out.println("maxPred("+sommet.id+")...");
+        Integer result = -1;
 
         datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet), -2); // Mise à -2 pour la détection de cycles
         for (Arc a : sommet.predecesseurs) {
-            System.out.println("Sommet precedent : "+a.sommetDepart.id);
-            if (!datesDebutAuPlusTot.get(ensembleSommets.indexOf(a.sommetDepart)).equals(-2)) {
-                System.out.println("Calcul de la date au plus tot pour " + a.sommetDepart.id);
+            if (a.sommetDepart.id.equals("debut")) return 0;
+            else if (!datesDebutAuPlusTot.get(ensembleSommets.indexOf(a.sommetDepart)).equals(-2)){
                 cycle = false;
-                Integer duree = dateAuPlusTot(a.sommetDepart) + a.duree;
-                result = Integer.max(duree, result);
+                if (a.machine == a.sommetDepart.activite.machineChoisie) {
+                    Integer duree = dateAuPlusTot(a.sommetDepart) + a.duree;
+                    result = Integer.max(duree, result);
+                }
             }
             else cycle = true;
         }
@@ -66,17 +72,22 @@ public class Graphe {
             return -1;
         } else return result;
     }
-    /***
-    ** Fonction récursive de calcul de la date au plus tot d'un sommet
-     ***/
+
+    /*************************************************************/
+    /******* Calcul du max de la date de debut au plus tot *******/
+    /*******                                               *******/
+    /****************** FONCTIONNE PARFAITEMENT ******************/
+    /*******                                               *******/
+    /*************************************************************/
 
     public Integer dateAuPlusTot(Sommet sommet){
-        System.out.println("Appel date au plus tot " + sommet.id);
         if (!sommet.id.equals("debut") && !sommet.id.equals("fin")) {
             if (datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet)) >= 0) {
                 return datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet));
             } else {
-                return maxPred(sommet);
+                Integer result = maxPred(sommet);
+                datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
+                return result;
             }
         }
         else if (sommet.id.equals("debut")) return 0;
@@ -158,6 +169,9 @@ public class Graphe {
     public void afficherGraphe(){
         Integer compt = 1;
         boolean fini = false;
+        System.out.println("*************************************************************************");
+        System.out.println("******************* Affichage du graphe des solutions *******************");
+        System.out.println();
         for (Sommet s : ensembleSommets){
             if (s.id.equals("debut") || s.id.equals("fin")) System.out.println("Sommet de " + s.id +"...");
             else {
@@ -165,6 +179,25 @@ public class Graphe {
                 if (suivantByID(s).id.equals("fin")) compt++;
             }
             compt ++;
+        }
+        System.out.println("*************************************************************************");
+    }
+
+    public void lierSommets(){
+        for (Sommet s : ensembleSommets){
+            if (!s.id.equals("debut") && !s.id.equals("fin")) {
+                Integer act = s.activite.id + 1;
+                String id_suiv = s.processus.id.toString() + "." + act.toString();
+                Boolean fin = true;
+                for (Sommet suiv : ensembleSommets) {
+                    if (suiv.id.equals(id_suiv)) {
+                        ajouterArc(s, suiv, s.activite.machineChoisie, s.activite.duree(s.activite.machineChoisie));
+                        fin = false;
+                    }
+                }
+                if (fin)
+                    ajouterArc(s, getSommetByID("fin"), s.activite.machineChoisie, s.activite.duree(s.activite.machineChoisie));
+            }
         }
     }
 
