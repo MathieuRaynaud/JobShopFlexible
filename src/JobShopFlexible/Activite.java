@@ -12,11 +12,13 @@ public class Activite {
     public Integer id;
     public int nbMachinesNecessaires;
     public ArrayList<Machine> MachinesNecessaires;
-    public Integer[] Durees;
+    public ArrayList<Integer> Durees;
     public Integer date_debut;
     public Integer date_fin;
     public Machine machineChoisie;
+    public Integer dureeChoisie;
     public ArrayList<Machine> MachinesBanies;
+    public ArrayList<Integer> DureesBanies;
 
     private int indiceMachine;
 
@@ -27,27 +29,28 @@ public class Activite {
         this.id = id;
         this.nbMachinesNecessaires = nbMachinesNecessaires ;
         this.MachinesNecessaires = new ArrayList<Machine>();
-        this.Durees = new Integer[nbMachinesNecessaires];
+        this.Durees = new ArrayList<Integer>();
         this.indiceMachine = 0;
         this.processus = processus;
         this.date_debut = -1;
         this.date_fin = 0;
         this.machineChoisie = null;
         this.MachinesBanies = new ArrayList<Machine>();
+        this.DureesBanies = new ArrayList<Integer>();
     }
 
     /*
      * Méthodes
      */
 
-    public int ajouterMachine(Machine machine, int duree){
+    public int ajouterMachine(Machine machine, Integer duree){
 
         if (indiceMachine == nbMachinesNecessaires){
             System.out.println("Impossible d'ajouter une machine, nombre maximal atteint !");
             return -1;
         }
         MachinesNecessaires.add(machine);
-        Durees[indiceMachine] = duree;
+        Durees.add(duree);
         this.indiceMachine += 1;
 
         return 0;
@@ -57,36 +60,23 @@ public class Activite {
         Integer result = null;
         for (Machine m : MachinesNecessaires){
             if (m.id.equals(mac.id)){
-                result = Durees[MachinesNecessaires.indexOf(m)];
+                result = Durees.get(MachinesNecessaires.indexOf(m));
             }
         }
-        /*for (Integer m=0; m<MachinesNecessaires.length; m++) {
-            if (MachinesNecessaires[m].equals(mac.id)) {
-                result = this.Durees[m];
-                //System.out.println("Activite " + this.id.toString() + " Machine " + mac.id.toString() + " : " + result.toString());
-            }
-        }*/
+        System.out.println("Duree de la machine " + mac.id.toString() + " : " + result.toString());
         return result;
     }
 
     public Integer dureeInt(Integer machine){
         Integer result = null;
         for (Machine m : MachinesNecessaires){
-            if (m.id.equals(machine)) result = this.Durees[MachinesNecessaires.indexOf(m)];
+            if (m.id.equals(machine)) result = this.Durees.get(MachinesNecessaires.indexOf(m));
         }
-        /*for(Integer m: this.MachinesNecessaires){
-            if(m==machine){
-                result = this.Durees[m-1];
-            }
-        }*/
         return result;
     }
 
     public void refresh(){
         this.date_fin = date_debut + duree(this.machineChoisie);
-        /*for (Integer mac: MachinesNecessaires) {
-            this.date_fin = date_debut + dureeInt(mac);
-        }*/
     }
 
     public boolean autreMachine(){
@@ -95,6 +85,9 @@ public class Activite {
 
     public void bannirMachine(Machine machine){
         MachinesBanies.add(machine);
+        DureesBanies.add(Durees.get(MachinesNecessaires.indexOf(machine)));
+        Durees.remove(MachinesNecessaires.indexOf(machine));
+        MachinesNecessaires.remove(machine);
     }
 
     public boolean machinesDispo(){
@@ -103,6 +96,30 @@ public class Activite {
 
     public void flushMachinesBannies(){
         MachinesNecessaires.addAll(MachinesBanies);
+        Durees.addAll(DureesBanies);
         this.MachinesBanies.clear();
+        this.DureesBanies.clear();
+    }
+
+    /*************************************************************/
+    /******* Choix de la machine disponible la plus rapide *******/
+    /*******                                               *******/
+    /****************** FONCTIONNE PARFAITEMENT ******************/
+    /*******                                               *******/
+    /*************************************************************/
+    public void choixMachine() {
+        Integer duree = 1000;
+        Integer dureeCalculee;
+        Machine machine = null;
+        for (Machine m : this.MachinesNecessaires) {
+            dureeCalculee = this.duree(m);
+            if (dureeCalculee < duree) {
+                machine = m;
+                duree = dureeCalculee;
+            }
+        }
+        this.machineChoisie = machine;
+        this.dureeChoisie = duree(this.machineChoisie);
+        System.out.println("Duree de la machine choisie n° " + this.machineChoisie.id.toString() + " : " + this.dureeChoisie.toString());
     }
 }

@@ -70,66 +70,12 @@ public class Glouton {
         return occ;
     }
 
-    /*************************************************************/
-    /******* Choix de la machine disponible la plus rapide *******/
-    /*******                                               *******/
-    /****************** FONCTIONNE PARFAITEMENT ******************/
-    /*******                                               *******/
-    /*************************************************************/
-    public Machine choixMachine(Activite activite){
-        Integer duree = 1000 ;
-        Integer dureeCalculee;
-        Machine machine = null;
-        for (Machine m : activite.MachinesNecessaires){
-            dureeCalculee = activite.duree(m);
-            if (dureeCalculee < duree){
-                machine = m;
-                duree = dureeCalculee;
-            }
-        }
-        /*for (Integer i : activite.MachinesNecessaires) {
-            dureeCalculee = activite.duree(jobshop.getMachineByID(i));
-            if (dureeCalculee < duree){
-                machine = jobshop.getMachineByID(i);
-                duree = dureeCalculee;
-            }
-        }*/
-        return machine;
-    }
-
-    /******* Affichage du tableau des solutions *******/
-    /*
-     TODO : Créer une fonction permettant d'afficher proprement les tableaux de solutions
-     */
-    public Integer afficherTableau(){
-        System.out.println("Affichage du tableau solution : ");
-        Integer process_count = 0;
-        Integer activity_count = 0;
-
-        Integer count[] = new Integer[this.tableau_solutions.size()];
-        Arrays.fill(count,0);
-        for(Infos i : tableau_solutions){
-            if (i != null) {
-                if (i.processus.id != null) System.out.print("Processus : " + i.processus.id);
-                if (i.processus.Activites[count[i.processus.id - 1]].id != null)
-                    System.out.print(" - Activité : " + i.processus.Activites[count[i.processus.id - 1]].id);
-                if (i.machine.id != null) System.out.print(" - Machine : " + i.machine.id);
-                if (i.date_debut != null) System.out.print(" - Date début : " + i.date_debut);
-                if (i.date_fin != null) System.out.print(" - Date fin : " + i.date_fin);
-                count[i.processus.id - 1]++;
-                System.out.println();
-            }
-        }
-        return 0;
-    }
-
     /** Initialisation de la file d'attente : mise de tous les sommets qui ont pour prédecesseur le debut --> Fonctionne ! **/
     private void init_file_attente(){
         for (Sommet sommet : this.jobshop.JobShopGraph.ensembleSommets) {
             for (Arc pred : sommet.predecesseurs) {
                 if (pred != null) {
                     if (pred.sommetDepart.id == "debut") {
-                        //System.out.println("Mise du sommet " + sommet.id + " dans la file d'attente (predecesseur = " + sommet.predecesseurs[0].sommetDepart.id + ")");
                         file_attente.add(sommet);
                     }
                 }
@@ -142,21 +88,12 @@ public class Glouton {
     public void initial(){
         for (Sommet s : jobshop.JobShopGraph.ensembleSommets){
             if (jobshop.JobShopGraph.estDernier(s)){
-                s.activite.machineChoisie = choixMachine(s.activite);
-                jobshop.JobShopGraph.modifierArc(s,jobshop.JobShopGraph.getSommetByID("fin"),s.activite.machineChoisie, s.activite.duree(s.activite.machineChoisie));
+                s.activite.choixMachine();
+                jobshop.JobShopGraph.modifierArc(s,jobshop.JobShopGraph.getSommetByID("fin"),s.activite.machineChoisie, s.activite.dureeChoisie);
             }
             else if (!(s.id.equals("debut")) && !(s.id.equals("fin"))){
-                s.activite.machineChoisie = choixMachine(s.activite);
-                jobshop.JobShopGraph.modifierArc(s,jobshop.JobShopGraph.suivantByID(s),s.activite.machineChoisie,s.activite.duree(s.activite.machineChoisie));
-            }
-        }
-    }
-
-    /**** Mise a jour de l'ensemble des dates au plus tot des sommets du graphe ****/
-    private void majDatesAuPlusTot() {
-        for (Sommet s : jobshop.JobShopGraph.ensembleSommets){
-            if (!s.id.equals("debut") && !s.id.equals("fin")) {
-                s.activite.date_debut = jobshop.JobShopGraph.dateAuPlusTot(s);
+                s.activite.choixMachine();
+                jobshop.JobShopGraph.modifierArc(s,jobshop.JobShopGraph.suivantByID(s),s.activite.machineChoisie,s.activite.dureeChoisie);
             }
         }
     }
@@ -177,7 +114,7 @@ public class Glouton {
         /*** Etape 2 : Creation d'une solution initiale avec les machines les plus rapides pour chaque activite ***/
         initial();
         jobshop.JobShopGraph.lierSommets();
-        majDatesAuPlusTot();
+        jobshop.JobShopGraph.majDatesAuPlusTot();
 
         /*****************************************/
         /***                                   ***/
@@ -191,20 +128,26 @@ public class Glouton {
 
         // Prendre le moins couteux entre le decalage du depart et le changement de machine
         Conflit conflit = jobshop.JobShopGraph.detecterConflit();
-        if (conflit != null){
+        while (conflit != null) {
             System.out.println("   * Conflit detecte !");
             System.out.println("      * Sommet 1 : " + conflit.sommet1.id);
             System.out.println("      * Sommet 2 : " + conflit.sommet2.id);
             System.out.println("      * Machine : " + conflit.machine.id.toString());
             System.out.println("      * Date de debut 1 : " + conflit.sommet1.activite.date_debut);
             System.out.println("      * Date de debut 2 : " + conflit.sommet2.activite.date_debut);
+
+            Sommet maj = jobshop.JobShopGraph.gererConflit(conflit);
+            maj.activite.choixMachine();
+            System.out.println("Machine choisie par " + maj.id + " pour gerer le conflit : " + maj.activite.machineChoisie.id.toString() + " (duree = "+maj.activite.dureeChoisie+")");
+            jobshop.JobShopGraph.majDatesAuPlusTot();
+
+            conflit = jobshop.JobShopGraph.detecterConflit();
         }
 
-        jobshop.JobShopGraph.gererConflit(conflit);
-
-        /*** Etape finale : Affichage du graphe solution ***/
+        /*** Etape finale : Affichage du graphe solution et calcul du cMax***/
 
         jobshop.JobShopGraph.afficherGraphe();
+        System.out.println("CMax = " + jobshop.JobShopGraph.cMax().toString());
 
         return 0;
     }

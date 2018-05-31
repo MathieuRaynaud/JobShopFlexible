@@ -49,10 +49,10 @@ public class Sommet {
      * Fonction d'ajout d'un arc
      ***/
     public Integer ajouterArc(Sommet depart, Machine machine, Integer cout){
-        if (indicePredecesseurs == -1){
+       /* if (indicePredecesseurs == -1){
             System.out.println("Impossible d'ajouter un successeur, nombre maximal atteint");
             return -1;
-        }
+        }*/
 
         this.predecesseurs.add(new Arc(depart, machine, cout));
         indicePredecesseurs--;
@@ -68,5 +68,37 @@ public class Sommet {
             if(a.machine == mac) return a.sommetDepart;
         }
         return null;
+    }
+
+    public Arc predecesseur(Sommet sommet){
+        for (Arc a : predecesseurs){
+            if (a.sommetDepart == sommet){
+                return a;
+            }
+        }
+        return null;
+    }
+
+    public Sommet predecesseur(){
+        for (Arc a : predecesseurs){
+            if (a.sommetDepart.id != "debut") {
+                if (a.sommetDepart.processus == this.processus) {
+                    if (a.sommetDepart.activite.id == activite.id - 1) {
+                        return a.sommetDepart;
+                    }
+                }
+            }
+            else return a.sommetDepart;
+        }
+        return null;
+    }
+
+    public boolean aPourPredecesseur(Sommet s){
+        for (Arc a : predecesseurs){
+            if (a.sommetDepart == s){
+                return true;
+            }
+        }
+        return false;
     }
 }

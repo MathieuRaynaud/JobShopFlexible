@@ -3,6 +3,7 @@ package JobShopFlexible;
 import java.util.ArrayList;
 
 import static JobShopFlexible.Generic.isIncluded;
+import static java.lang.Thread.sleep;
 
 public class Graphe {
 
@@ -57,7 +58,9 @@ public class Graphe {
 
         datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet), -2); // Mise à -2 pour la détection de cycles
         for (Arc a : sommet.predecesseurs) {
-            if (a.sommetDepart.id.equals("debut")) return 0;
+            if (a.sommetDepart.id.equals("debut")) {
+                return a.duree;
+            }
             else if (!datesDebutAuPlusTot.get(ensembleSommets.indexOf(a.sommetDepart)).equals(-2)){
                 cycle = false;
                 if (a.machine == a.sommetDepart.activite.machineChoisie) {
@@ -82,11 +85,18 @@ public class Graphe {
 
     public Integer dateAuPlusTot(Sommet sommet){
         if (!sommet.id.equals("debut") && !sommet.id.equals("fin")) {
-            if (datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet)) >= 0) {
-                return datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet));
+            if (sommet.aPourPredecesseur(getSommetByID("debut"))){
+                Integer result = maxPred(sommet);
+                datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
+                System.out.println("Valeur renvoyee par maxPred pour " + sommet.id + " : " + result.toString());
+                return result;
+            }
+            else if (datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet)) >= 0) {
+                return sommet.predecesseur().activite.date_fin;
             } else {
                 Integer result = maxPred(sommet);
                 datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
+                System.out.println("Valeur renvoyee par maxPred pour " + sommet.id + " : " + result.toString());
                 return result;
             }
         }
@@ -95,14 +105,24 @@ public class Graphe {
         else return -1;
     }
 
+    /**** Mise a jour de l'ensemble des dates au plus tot des sommets du graphe ****/
+    public void majDatesAuPlusTot() {
+        for (Sommet s : ensembleSommets){
+            if (!s.id.equals("debut") && !s.id.equals("fin")) {
+                s.activite.date_debut = dateAuPlusTot(s);
+                s.activite.refresh();
+            }
+        }
+    }
+
     /***
-    ** Fonction de calcul du cMax du graphe
+    ** Fonction de calcul du cMax du graphe : FONCTIONNE !!!
      ***/
     public Integer cMax(){
         Integer cmax = 0;
-        Sommet fin = ensembleSommets.get(ensembleSommets.lastIndexOf(ensembleSommets));
+        Sommet fin = ensembleSommets.get(ensembleSommets.size()-1);
         for (Arc a : fin.predecesseurs){
-            cmax = Integer.max(cmax, dateAuPlusTot(a.sommetDepart));
+            cmax = Integer.max(cmax, dateAuPlusTot(a.sommetDepart)+a.duree);
         }
         return cmax;
     }
@@ -175,7 +195,7 @@ public class Graphe {
         for (Sommet s : ensembleSommets){
             if (s.id.equals("debut") || s.id.equals("fin")) System.out.println("Sommet de " + s.id +"...");
             else {
-                System.out.println("Processus : " + s.processus.id +" Activite : " + s.activite.id.toString() + " - Machine : " + s.activite.machineChoisie.id.toString() + " - Date de debut : " + s.activite.date_debut.toString() + " - Duree : " + s.activite.duree(s.activite.machineChoisie).toString());
+                System.out.println("Processus : " + s.processus.id +" Activite : " + s.activite.id.toString() + " - Machine : " + s.activite.machineChoisie.id.toString() + " - Date de debut : " + s.activite.date_debut.toString() + " - Duree : " + s.activite.dureeChoisie.toString());
                 if (suivantByID(s).id.equals("fin")) compt++;
             }
             compt ++;
@@ -191,12 +211,13 @@ public class Graphe {
                 Boolean fin = true;
                 for (Sommet suiv : ensembleSommets) {
                     if (suiv.id.equals(id_suiv)) {
-                        ajouterArc(s, suiv, s.activite.machineChoisie, s.activite.duree(s.activite.machineChoisie));
+                        ajouterArc(s, suiv, s.activite.machineChoisie, s.activite.dureeChoisie);
                         fin = false;
                     }
                 }
-                if (fin)
-                    ajouterArc(s, getSommetByID("fin"), s.activite.machineChoisie, s.activite.duree(s.activite.machineChoisie));
+                if (fin) {
+                    ajouterArc(s, getSommetByID("fin"), s.activite.machineChoisie, s.activite.dureeChoisie);
+                }
             }
         }
     }
@@ -205,20 +226,16 @@ public class Graphe {
         for (Sommet s1 : ensembleSommets){
             for (Sommet s2 : ensembleSommets){
                 if (s1 != s2 && !s1.id.equals("debut") && !s1.id.equals("fin") && !s2.id.equals("debut") && !s2.id.equals("fin")){
-                    System.out.println("Machine " +s1.id+ " : " + s1.activite.machineChoisie.id.toString());
-                    System.out.println("Machine " +s2.id+ " : " + s2.activite.machineChoisie.id.toString());
                     if (s1.activite.machineChoisie == s2.activite.machineChoisie){
-                        System.out.println(s1.id + "vs" + s2.id);
                         Conflit result = new Conflit(s1,s2,s1.activite.machineChoisie);
                         if (s2.activite.date_debut>s1.activite.date_debut && s1.activite.date_fin>s2.activite.date_debut){
                             return result;
                         }
                         else if (s1.activite.date_debut>s2.activite.date_debut && s2.activite.date_fin>s1.activite.date_debut){
-
+                            System.out.println(s2.processus.id.toString() + "." + s2.activite.id.toString());
                             return result;
                         }
                         else if (s1.activite.date_debut == s2.activite.date_debut){
-                            System.out.println(s2.processus.id.toString() + "." + s2.activite.id.toString());
                             return result;
                         }
                     }
@@ -228,14 +245,39 @@ public class Graphe {
         return null;
     }
 
-    public void gererConflit (Conflit conflit){
+    private Sommet actvitesBanies(Sommet sommet){
+        System.out.println("Toutes les autres machines de l'activite " + sommet.id + " sont banies");
+        sommet.activite.flushMachinesBannies();
+        System.out.println("Decalage de " + sommet.id + " 1 !!!!!!!!!!!!!!!!");
+        sommet.activite.choixMachine();
+        if (!sommet.predecesseur().id.equals("debut")){
+            if (sommet.aPourPredecesseur(getSommetByID("debut"))){
+                sommet.modifierArc(getSommetByID("debut"),null,sommet.predecesseur(getSommetByID("debut")).duree+1);
+            }
+            else{
+                sommet.ajouterArc(getSommetByID("debut"),null,sommet.predecesseur().activite.date_fin+1);
+            }
+        }
+        majDatesAuPlusTot();
+        System.out.println("Nouvelle date de debut : " + sommet.activite.date_debut.toString());
+        System.out.println("Nouvelle date de fin : " + sommet.activite.date_fin.toString());
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return sommet;
+    }
+
+    /*** Fonction de gestion de conflit entre 2 sommets : retourne le sommet à mettre à jour ***/
+    public Sommet gererConflit (Conflit conflit){
         System.out.println("Gestion du conflit entre les activites " + conflit.sommet1.id +" et " + conflit.sommet2.id);
 
         Sommet priorite;
         Sommet esclave;
 
-        boolean autreMachinePourEsclave;
-        boolean autreMachinePourPriorite;
+        boolean autreMachinePourEsclave = false;
+        boolean autreMachinePourPriorite = false;
 
         Integer dureeSommet1;
         Integer dureeSommet2;
@@ -251,7 +293,7 @@ public class Graphe {
         }
         else {
             /* Definition du sommet prioritaire par rapport a la duree de travail */
-            if (conflit.sommet1.activite.duree(conflit.sommet1.activite.machineChoisie) <= conflit.sommet2.activite.duree(conflit.sommet2.activite.machineChoisie)) {
+            if (conflit.sommet1.activite.dureeChoisie <= conflit.sommet2.activite.dureeChoisie) {
                 priorite = conflit.sommet1;
                 esclave = conflit.sommet2;
             } else {
@@ -266,20 +308,28 @@ public class Graphe {
             esclave.activite.bannirMachine(esclave.activite.machineChoisie);
             if (esclave.activite.machinesDispo()) {
                 autreMachinePourEsclave = true;
-                System.out.println("L'activite " + esclave.id.toString() + " peut etre executee avec une autre machine");
-            } else
-                System.out.println("Toutes les autres machines de l'activite " + esclave.id.toString() + " sont banies");
+                System.out.println("L'activite " + esclave.id + " peut etre executee avec une autre machine");
+            } else {
+                return actvitesBanies(esclave);
+            }
         }
         else if (priorite.activite.autreMachine()) {
             priorite.activite.bannirMachine(priorite.activite.machineChoisie);
             if (priorite.activite.machinesDispo()) {
                 autreMachinePourPriorite = true;
-                System.out.println("L'activite " + priorite.id.toString() + " peut etre executee avec une autre machine");
-            } else
-                System.out.println("Toutes les autres machines de l'activite " + priorite.id.toString() + " sont banies");
+                System.out.println("L'activite " + priorite.id + " peut etre executee avec une autre machine");
+            } else {
+                return actvitesBanies(priorite);
+            }
         }
 
-        // TODO : Gérer le changement de machine ou le decalage !
+        if (autreMachinePourEsclave){
+            return esclave;
+        }
+        else if (autreMachinePourPriorite){
+            return priorite;
+        }
+        else return null;
     }
 
 }
