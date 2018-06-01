@@ -98,6 +98,52 @@ public class Glouton {
         }
     }
 
+    /*** Fonction de transformation du graphe en matrice ***/
+    public Integer[][] toMatrice(Graphe graphe){
+        Integer ProcessActuel = 1;
+        Integer ActiviteActuelle = 1;
+        Integer indice;
+        Integer[][] Matrice = new Integer[jobshop.Processus.length][graphe.cMax()];
+        while (ProcessActuel < (jobshop.Processus.length+1)){
+            ActiviteActuelle = 1;
+            for (Sommet s : graphe.ensembleSommets){
+                if (!s.id.equals("debut") && !s.id.equals("fin")) {
+                    if (s.processus.id.equals(ProcessActuel)) {
+                        if (s.activite.id.equals(ActiviteActuelle)) {
+                            indice = s.activite.date_debut;
+                            while (indice < s.activite.date_fin) {
+                                Matrice[ProcessActuel - 1][indice] = s.activite.machineChoisie.id;
+                                indice++;
+                            }
+                            ActiviteActuelle++;
+                        }
+                    }
+                }
+            }
+            ProcessActuel++;
+        }
+        return Matrice;
+    }
+
+    /*** Fonction d'affichage d'une matrice ***/
+    public void printMatrice(Integer[][] Matrice, Integer width, Integer height){
+        Integer indiceProc;
+        Integer indiceAct;
+        System.out.println("*********************************************************************************");
+        System.out.println("*********************** Affichage temporel de la solution ***********************");
+        System.out.println("*********************************************************************************");
+        for (indiceProc=0; indiceProc<height; indiceProc++){
+            System.out.printf("Processus %2d : " ,(indiceProc+1));
+            for(indiceAct=0; indiceAct<width; indiceAct++) {
+                System.out.printf("|%4s|", Matrice[indiceProc][indiceAct]);
+            }
+            System.out.println();
+            System.out.println("---------------------------------------------------------------------------------");
+        }
+        System.out.println("CMax de la solution : " + jobshop.JobShopGraph.cMax().toString());
+        System.out.println("*********************************************************************************");
+    }
+
     /******* FONCTION PRINCIPALE : MISE EN PLACE DE L'HEURISTIQUE *******/
 
     /*
@@ -129,16 +175,8 @@ public class Glouton {
         // Prendre le moins couteux entre le decalage du depart et le changement de machine
         Conflit conflit = jobshop.JobShopGraph.detecterConflit();
         while (conflit != null) {
-            System.out.println("   * Conflit detecte !");
-            System.out.println("      * Sommet 1 : " + conflit.sommet1.id);
-            System.out.println("      * Sommet 2 : " + conflit.sommet2.id);
-            System.out.println("      * Machine : " + conflit.machine.id.toString());
-            System.out.println("      * Date de debut 1 : " + conflit.sommet1.activite.date_debut);
-            System.out.println("      * Date de debut 2 : " + conflit.sommet2.activite.date_debut);
-
             Sommet maj = jobshop.JobShopGraph.gererConflit(conflit);
             maj.activite.choixMachine();
-            System.out.println("Machine choisie par " + maj.id + " pour gerer le conflit : " + maj.activite.machineChoisie.id.toString() + " (duree = "+maj.activite.dureeChoisie+")");
             jobshop.JobShopGraph.majDatesAuPlusTot();
 
             conflit = jobshop.JobShopGraph.detecterConflit();
@@ -146,8 +184,10 @@ public class Glouton {
 
         /*** Etape finale : Affichage du graphe solution et calcul du cMax***/
 
-        jobshop.JobShopGraph.afficherGraphe();
-        System.out.println("CMax = " + jobshop.JobShopGraph.cMax().toString());
+        //jobshop.JobShopGraph.afficherGraphe();
+        //System.out.println("CMax = " + jobshop.JobShopGraph.cMax().toString());
+
+        printMatrice(toMatrice(jobshop.JobShopGraph),jobshop.JobShopGraph.cMax(),jobshop.Processus.length);
 
         return 0;
     }

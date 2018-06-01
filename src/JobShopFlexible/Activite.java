@@ -63,7 +63,6 @@ public class Activite {
                 result = Durees.get(MachinesNecessaires.indexOf(m));
             }
         }
-        System.out.println("Duree de la machine " + mac.id.toString() + " : " + result.toString());
         return result;
     }
 
@@ -120,6 +119,5 @@ public class Activite {
         }
         this.machineChoisie = machine;
         this.dureeChoisie = duree(this.machineChoisie);
-        System.out.println("Duree de la machine choisie n° " + this.machineChoisie.id.toString() + " : " + this.dureeChoisie.toString());
     }
 }

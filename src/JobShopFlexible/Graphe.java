@@ -88,7 +88,6 @@ public class Graphe {
             if (sommet.aPourPredecesseur(getSommetByID("debut"))){
                 Integer result = maxPred(sommet);
                 datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
-                System.out.println("Valeur renvoyee par maxPred pour " + sommet.id + " : " + result.toString());
                 return result;
             }
             else if (datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet)) >= 0) {
@@ -96,7 +95,6 @@ public class Graphe {
             } else {
                 Integer result = maxPred(sommet);
                 datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
-                System.out.println("Valeur renvoyee par maxPred pour " + sommet.id + " : " + result.toString());
                 return result;
             }
         }
@@ -195,7 +193,7 @@ public class Graphe {
         for (Sommet s : ensembleSommets){
             if (s.id.equals("debut") || s.id.equals("fin")) System.out.println("Sommet de " + s.id +"...");
             else {
-                System.out.println("Processus : " + s.processus.id +" Activite : " + s.activite.id.toString() + " - Machine : " + s.activite.machineChoisie.id.toString() + " - Date de debut : " + s.activite.date_debut.toString() + " - Duree : " + s.activite.dureeChoisie.toString());
+                System.out.println("Processus : " + s.processus.id +" Activite : " + s.activite.id.toString() + " - Date de debut : " + s.activite.date_debut.toString() + " - Machine : " + s.activite.machineChoisie.id.toString() + " - Duree : " + s.activite.dureeChoisie.toString());
                 if (suivantByID(s).id.equals("fin")) compt++;
             }
             compt ++;
@@ -232,10 +230,9 @@ public class Graphe {
                             return result;
                         }
                         else if (s1.activite.date_debut>s2.activite.date_debut && s2.activite.date_fin>s1.activite.date_debut){
-                            System.out.println(s2.processus.id.toString() + "." + s2.activite.id.toString());
                             return result;
                         }
-                        else if (s1.activite.date_debut == s2.activite.date_debut){
+                        else if (s1.activite.date_debut.equals(s2.activite.date_debut)){
                             return result;
                         }
                     }
@@ -246,9 +243,7 @@ public class Graphe {
     }
 
     private Sommet actvitesBanies(Sommet sommet){
-        System.out.println("Toutes les autres machines de l'activite " + sommet.id + " sont banies");
         sommet.activite.flushMachinesBannies();
-        System.out.println("Decalage de " + sommet.id + " 1 !!!!!!!!!!!!!!!!");
         sommet.activite.choixMachine();
         if (!sommet.predecesseur().id.equals("debut")){
             if (sommet.aPourPredecesseur(getSommetByID("debut"))){
@@ -259,8 +254,6 @@ public class Graphe {
             }
         }
         majDatesAuPlusTot();
-        System.out.println("Nouvelle date de debut : " + sommet.activite.date_debut.toString());
-        System.out.println("Nouvelle date de fin : " + sommet.activite.date_fin.toString());
         try {
             sleep(1000);
         } catch (InterruptedException e) {
@@ -271,7 +264,6 @@ public class Graphe {
 
     /*** Fonction de gestion de conflit entre 2 sommets : retourne le sommet à mettre à jour ***/
     public Sommet gererConflit (Conflit conflit){
-        System.out.println("Gestion du conflit entre les activites " + conflit.sommet1.id +" et " + conflit.sommet2.id);
 
         Sommet priorite;
         Sommet esclave;
@@ -302,13 +294,10 @@ public class Graphe {
             }
         }
 
-        System.out.println("Sommet prioritaire : " + priorite.id);
-        System.out.println("Sommet esclave : " + esclave.id);
         if (esclave.activite.autreMachine()) {
             esclave.activite.bannirMachine(esclave.activite.machineChoisie);
             if (esclave.activite.machinesDispo()) {
                 autreMachinePourEsclave = true;
-                System.out.println("L'activite " + esclave.id + " peut etre executee avec une autre machine");
             } else {
                 return actvitesBanies(esclave);
             }
@@ -317,7 +306,6 @@ public class Graphe {
             priorite.activite.bannirMachine(priorite.activite.machineChoisie);
             if (priorite.activite.machinesDispo()) {
                 autreMachinePourPriorite = true;
-                System.out.println("L'activite " + priorite.id + " peut etre executee avec une autre machine");
             } else {
                 return actvitesBanies(priorite);
             }
