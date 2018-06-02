@@ -153,21 +153,11 @@ public class Glouton {
         jobshop.JobShopGraph.lierSommets();
         jobshop.JobShopGraph.majDatesAuPlusTot();
 
-        /*****************************************/
-        /***                                   ***/
-        /*** JUSQU'ICI TOUT MARCHE COMME PREVU ***/
-        /***                                   ***/
-        /*****************************************/
-
         /*** Etape 3 : Mise a jour de la solution jusqu'a ce qu'elle soit acceptable ***/
 
-        // TODO : Gerer les conflits entre machines
-
-        // Prendre le moins couteux entre le decalage du depart et le changement de machine
         Conflit conflit = jobshop.JobShopGraph.detecterConflit();
         while (conflit != null) {
-            Sommet maj = jobshop.JobShopGraph.gererConflit(conflit);
-            maj.activite.choixMachine();
+            jobshop.JobShopGraph.gererConflit(conflit);
             jobshop.JobShopGraph.majDatesAuPlusTot();
             conflit = jobshop.JobShopGraph.detecterConflit();
         }

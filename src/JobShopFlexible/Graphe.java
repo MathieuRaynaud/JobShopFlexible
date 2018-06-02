@@ -235,7 +235,7 @@ public class Graphe {
     }
 
     /*** Fonction de gestion de conflit entre 2 sommets : retourne le sommet à mettre à jour ***/
-    public Sommet gererConflit (Conflit conflit){
+    public void gererConflit (Conflit conflit){
 
         Sommet priorite;
         Sommet esclave;
@@ -268,7 +268,7 @@ public class Graphe {
             if (esclave.activite.machinesDispo()) {
                 autreMachinePourEsclave = true;
             } else {
-                return activitesBanies(esclave);
+                activitesBanies(esclave);
             }
         }
         else if (priorite.activite.autreMachine()) {
@@ -276,17 +276,19 @@ public class Graphe {
             if (priorite.activite.machinesDispo()) {
                 autreMachinePourPriorite = true;
             } else {
-                return activitesBanies(priorite);
+                activitesBanies(priorite);
             }
         }
 
         if (autreMachinePourEsclave){
-            return esclave;
+            esclave.activite.choixMachine();
         }
         else if (autreMachinePourPriorite){
-            return priorite;
+            priorite.activite.choixMachine();
         }
-        else return activitesBanies(esclave);
+        else{
+            activitesBanies(esclave);
+        }
     }
 
 }
