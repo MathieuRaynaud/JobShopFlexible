@@ -66,14 +66,6 @@ public class Activite {
         return result;
     }
 
-    public Integer dureeInt(Integer machine){
-        Integer result = null;
-        for (Machine m : MachinesNecessaires){
-            if (m.id.equals(machine)) result = this.Durees.get(MachinesNecessaires.indexOf(m));
-        }
-        return result;
-    }
-
     public void refresh(){
         this.date_fin = date_debut + duree(this.machineChoisie);
     }

@@ -116,22 +116,13 @@ public class Graphe {
     /***
     ** Fonction de calcul du cMax du graphe : FONCTIONNE !!!
      ***/
-    public Integer cMax(){
+    public Integer cMax() {
         Integer cmax = 0;
-        Sommet fin = ensembleSommets.get(ensembleSommets.size()-1);
-        for (Arc a : fin.predecesseurs){
-            cmax = Integer.max(cmax, dateAuPlusTot(a.sommetDepart)+a.duree);
+        Sommet fin = ensembleSommets.get(ensembleSommets.size() - 1);
+        for (Arc a : fin.predecesseurs) {
+            cmax = Integer.max(cmax, dateAuPlusTot(a.sommetDepart) + a.duree);
         }
         return cmax;
-    }
-
-    public Sommet getSommetByActivite(Activite act){
-        for(Sommet s:ensembleSommets){
-            if ((s.processus==act.processus) & (s.activite == act)){
-                return s;
-            }
-        }
-        return null;
     }
 
     public Sommet getSommetByID(String id){
@@ -143,20 +134,7 @@ public class Graphe {
         return null;
     }
 
-    /***
-     * Fonction de retour du sommet suivant
-     ***/
-
-    public Sommet suivant(Sommet sommet){
-        for (Sommet s:ensembleSommets){
-            if(isIncluded(sommet,s.predecesseurs)){
-                return s;
-            }
-        }
-        return null;
-    }
-
-    public Sommet suivantByID(Sommet sommet){
+   public Sommet suivantByID(Sommet sommet){
         String id_suiv = sommet.processus.id.toString() + "." + sommet.activite.id.toString();
         for (Sommet s:ensembleSommets){
             if(s.id.equals(id_suiv) ){

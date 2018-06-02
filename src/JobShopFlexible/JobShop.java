@@ -2,7 +2,6 @@ package JobShopFlexible;
 
 import javax.xml.bind.SchemaOutputResolver;
 import java.io.*;
-import JobShopFlexible.Generic.*;
 
 public class JobShop {
 

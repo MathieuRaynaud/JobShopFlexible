@@ -17,7 +17,6 @@ public class Glouton {
      */
 
     public JobShop jobshop;
-    public ArrayList<Infos> tableau_solutions; // IL VA SUREMENT FALLOIR PASSER A UN TABLEAU DE SOMMETS
     public ArrayList<Sommet> file_attente;
 
     /*
@@ -25,7 +24,6 @@ public class Glouton {
      */
 
     public Glouton(JobShop jobshop){
-        this.tableau_solutions = new ArrayList<Infos>();
         this.jobshop = jobshop;
         this.file_attente = new ArrayList<Sommet>();
     }
@@ -42,33 +40,6 @@ public class Glouton {
             - Si un processus peut utiliser plusieurs machines pour s'exectuer, on utilise celle qui est libre qui prendra le moins de temps --> choixMachine
             - Pour chaque processus, l'ordre des activites doit être respecté --> Géré par la file_attente
      *******************************************************************************************************************************************************/
-
-    /******* Fonction de choix du sommet a exectuer au plus tot ********/
-    public Sommet sommetAuPlusTot(ArrayList<Sommet> list){
-        Integer mem = Integer.MAX_VALUE;
-        Sommet result = null;
-        for(Sommet s:list){
-            if (s.activite.date_debut < mem) {
-                result = s;
-                mem = s.activite.date_debut;
-            }
-        }
-        return result;
-    }
-
-    /****** Fonction pour savoir si une machine est occupee ou non *****/
-    public boolean isOccupied(Machine m, Integer debut, Integer fin, ArrayList<Machine> machines, ArrayList<Integer> deb, ArrayList<Integer> f){
-        boolean occ = false;
-        if (isIncluded(m,machines)) {
-            Integer index = machines.indexOf(m);
-            for (Object o : machines){
-                if (o == m){
-                    occ = (occ || (!((debut>f.get(index)) || fin < deb.get(index))));
-                }
-            }
-        }
-        return occ;
-    }
 
     /** Initialisation de la file d'attente : mise de tous les sommets qui ont pour prédecesseur le debut --> Fonctionne ! **/
     private void init_file_attente(){
@@ -99,11 +70,11 @@ public class Glouton {
     }
 
     /*** Fonction de transformation du graphe en matrice ***/
-    public Integer[][] toMatrice(Graphe graphe){
+    public Machine[][] toMatrice(Graphe graphe){
         Integer ProcessActuel = 1;
         Integer ActiviteActuelle = 1;
         Integer indice;
-        Integer[][] Matrice = new Integer[jobshop.Processus.length][graphe.cMax()];
+        Machine[][] Matrice = new Machine[jobshop.Processus.length][graphe.cMax()];
         while (ProcessActuel < (jobshop.Processus.length+1)){
             ActiviteActuelle = 1;
             for (Sommet s : graphe.ensembleSommets){
@@ -112,7 +83,7 @@ public class Glouton {
                         if (s.activite.id.equals(ActiviteActuelle)) {
                             indice = s.activite.date_debut;
                             while (indice < s.activite.date_fin) {
-                                Matrice[ProcessActuel - 1][indice] = s.activite.machineChoisie.id;
+                                Matrice[ProcessActuel - 1][indice] = s.activite.machineChoisie;
                                 indice++;
                             }
                             ActiviteActuelle++;
@@ -126,39 +97,38 @@ public class Glouton {
     }
 
     /*** Fonction d'affichage d'une matrice ***/
-    public void printMatrice(Integer[][] Matrice, Integer width, Integer height){
+    public void printMatrice(Machine[][] Matrice, Integer width, Integer height){
         Integer indiceProc;
         Integer indiceAct;
         String traits = null;
         StringBuilder stringBuilderTraits = new StringBuilder();
         StringBuilder stringBuilderEtoiles = new StringBuilder();
-        StringBuilder stringBuilderMiniEtoiles = new StringBuilder();
         stringBuilderTraits.append("---------------");
         stringBuilderEtoiles.append("***************");
-        stringBuilderMiniEtoiles.append("*******");
         for (indiceAct=0; indiceAct<width; indiceAct++){
-            stringBuilderTraits.append("------");
-            stringBuilderEtoiles.append("******");
-            stringBuilderMiniEtoiles.append("***");
+            stringBuilderTraits.append("-----");
+            stringBuilderEtoiles.append("*****");
 
         }
         String etoiles = stringBuilderEtoiles.toString();
-        stringBuilderMiniEtoiles.delete(0,19);
-        String miniEtoiles = stringBuilderMiniEtoiles.toString();
         System.out.println();
-        System.out.println(etoiles);
-        System.out.println(miniEtoiles + "   Affichage temporel de la solution   " + miniEtoiles);
+        System.out.println("Affichage temporel de la solution :");
         System.out.println(etoiles);
 
 
         for (indiceProc=0; indiceProc<height; indiceProc++){
             System.out.printf("Processus %2d : " ,(indiceProc+1));
             for(indiceAct=0; indiceAct<width; indiceAct++) {
-                System.out.printf("|%4s|", Matrice[indiceProc][indiceAct]);
+                if (Matrice[indiceProc][indiceAct]==null){
+                    System.out.printf("\033[30m"+"|   |");
+                }
+                else {
+                    System.out.printf(Matrice[indiceProc][indiceAct].couleur+"|%3s|", Matrice[indiceProc][indiceAct].id);
+                }
             }
             System.out.println();
             traits = stringBuilderTraits.toString();
-            System.out.println(traits);
+            System.out.println("\033[0m"+traits);
         }
         System.out.println();
         System.out.println("CMax de la solution : " + jobshop.JobShopGraph.cMax().toString());
