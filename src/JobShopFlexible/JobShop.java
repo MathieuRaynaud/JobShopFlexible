@@ -96,10 +96,12 @@ public class JobShop {
     }
 
     public static void main (String[] args){
+        long debut = System.currentTimeMillis();
         File file = new File("Job_Data/test.fjs");
         JobShop JobFlex = new JobShop(file);
         Glouton glouton = new Glouton(JobFlex);
         glouton.heuristiqueGloutonne();
+        System.out.println("Temps d'exécution du programme : " + (System.currentTimeMillis()-debut) + "ms");
     }
 
 }

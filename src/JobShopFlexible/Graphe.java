@@ -222,7 +222,6 @@ public class Graphe {
 
     private Sommet activitesBanies(Sommet sommet){
         sommet.activite.flushMachinesBannies();
-        sommet.activite.choixMachine();
         if (sommet.aPourPredecesseur(getSommetByID("debut"))){
             Integer nouveauCout = sommet.predecesseur(getSommetByID("debut")).duree+1;
             sommet.modifierArc(getSommetByID("debut"),null,nouveauCout);
@@ -235,7 +234,7 @@ public class Graphe {
     }
 
     /*** Fonction de gestion de conflit entre 2 sommets : retourne le sommet à mettre à jour ***/
-    public void gererConflit (Conflit conflit){
+    public Sommet gererConflit (Conflit conflit){
 
         Sommet priorite;
         Sommet esclave;
@@ -268,7 +267,7 @@ public class Graphe {
             if (esclave.activite.machinesDispo()) {
                 autreMachinePourEsclave = true;
             } else {
-                activitesBanies(esclave);
+                return activitesBanies(esclave);
             }
         }
         else if (priorite.activite.autreMachine()) {
@@ -276,19 +275,17 @@ public class Graphe {
             if (priorite.activite.machinesDispo()) {
                 autreMachinePourPriorite = true;
             } else {
-                activitesBanies(priorite);
+                return activitesBanies(priorite);
             }
         }
 
         if (autreMachinePourEsclave){
-            esclave.activite.choixMachine();
+            return esclave;
         }
         else if (autreMachinePourPriorite){
-            priorite.activite.choixMachine();
+            return priorite;
         }
-        else{
-            activitesBanies(esclave);
-        }
+        else return activitesBanies(esclave);
     }
 
 }

@@ -157,7 +157,8 @@ public class Glouton {
 
         Conflit conflit = jobshop.JobShopGraph.detecterConflit();
         while (conflit != null) {
-            jobshop.JobShopGraph.gererConflit(conflit);
+            Sommet maj = jobshop.JobShopGraph.gererConflit(conflit);
+            maj.activite.choixMachine();
             jobshop.JobShopGraph.majDatesAuPlusTot();
             conflit = jobshop.JobShopGraph.detecterConflit();
         }
