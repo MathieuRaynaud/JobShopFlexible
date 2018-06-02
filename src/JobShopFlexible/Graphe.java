@@ -242,23 +242,17 @@ public class Graphe {
         return null;
     }
 
-    private Sommet actvitesBanies(Sommet sommet){
+    private Sommet activitesBanies(Sommet sommet){
         sommet.activite.flushMachinesBannies();
         sommet.activite.choixMachine();
-        if (!sommet.predecesseur().id.equals("debut")){
-            if (sommet.aPourPredecesseur(getSommetByID("debut"))){
-                sommet.modifierArc(getSommetByID("debut"),null,sommet.predecesseur(getSommetByID("debut")).duree+1);
-            }
-            else{
-                sommet.ajouterArc(getSommetByID("debut"),null,sommet.predecesseur().activite.date_fin+1);
-            }
+        if (sommet.aPourPredecesseur(getSommetByID("debut"))){
+            Integer nouveauCout = sommet.predecesseur(getSommetByID("debut")).duree+1;
+            sommet.modifierArc(getSommetByID("debut"),null,nouveauCout);
+        }
+        else{
+            sommet.ajouterArc(getSommetByID("debut"),null,sommet.predecesseur().activite.date_fin+1);
         }
         majDatesAuPlusTot();
-        try {
-            sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return sommet;
     }
 
@@ -270,9 +264,6 @@ public class Graphe {
 
         boolean autreMachinePourEsclave = false;
         boolean autreMachinePourPriorite = false;
-
-        Integer dureeSommet1;
-        Integer dureeSommet2;
 
         /* Definition du sommet prioritaire par rapport a la date de debut de travail */
         if (conflit.sommet1.activite.date_debut < conflit.sommet2.activite.date_debut){
@@ -299,7 +290,7 @@ public class Graphe {
             if (esclave.activite.machinesDispo()) {
                 autreMachinePourEsclave = true;
             } else {
-                return actvitesBanies(esclave);
+                return activitesBanies(esclave);
             }
         }
         else if (priorite.activite.autreMachine()) {
@@ -307,7 +298,7 @@ public class Graphe {
             if (priorite.activite.machinesDispo()) {
                 autreMachinePourPriorite = true;
             } else {
-                return actvitesBanies(priorite);
+                return activitesBanies(priorite);
             }
         }
 
@@ -317,7 +308,7 @@ public class Graphe {
         else if (autreMachinePourPriorite){
             return priorite;
         }
-        else return null;
+        else return activitesBanies(esclave);
     }
 
 }

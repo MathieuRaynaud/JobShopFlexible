@@ -129,19 +129,40 @@ public class Glouton {
     public void printMatrice(Integer[][] Matrice, Integer width, Integer height){
         Integer indiceProc;
         Integer indiceAct;
-        System.out.println("*********************************************************************************");
-        System.out.println("*********************** Affichage temporel de la solution ***********************");
-        System.out.println("*********************************************************************************");
+        String traits = null;
+        StringBuilder stringBuilderTraits = new StringBuilder();
+        StringBuilder stringBuilderEtoiles = new StringBuilder();
+        StringBuilder stringBuilderMiniEtoiles = new StringBuilder();
+        stringBuilderTraits.append("---------------");
+        stringBuilderEtoiles.append("***************");
+        stringBuilderMiniEtoiles.append("*******");
+        for (indiceAct=0; indiceAct<width; indiceAct++){
+            stringBuilderTraits.append("------");
+            stringBuilderEtoiles.append("******");
+            stringBuilderMiniEtoiles.append("***");
+
+        }
+        String etoiles = stringBuilderEtoiles.toString();
+        stringBuilderMiniEtoiles.delete(0,19);
+        String miniEtoiles = stringBuilderMiniEtoiles.toString();
+        System.out.println();
+        System.out.println(etoiles);
+        System.out.println(miniEtoiles + "   Affichage temporel de la solution   " + miniEtoiles);
+        System.out.println(etoiles);
+
+
         for (indiceProc=0; indiceProc<height; indiceProc++){
             System.out.printf("Processus %2d : " ,(indiceProc+1));
             for(indiceAct=0; indiceAct<width; indiceAct++) {
                 System.out.printf("|%4s|", Matrice[indiceProc][indiceAct]);
             }
             System.out.println();
-            System.out.println("---------------------------------------------------------------------------------");
+            traits = stringBuilderTraits.toString();
+            System.out.println(traits);
         }
+        System.out.println();
         System.out.println("CMax de la solution : " + jobshop.JobShopGraph.cMax().toString());
-        System.out.println("*********************************************************************************");
+        System.out.println(etoiles);
     }
 
     /******* FONCTION PRINCIPALE : MISE EN PLACE DE L'HEURISTIQUE *******/
@@ -178,14 +199,10 @@ public class Glouton {
             Sommet maj = jobshop.JobShopGraph.gererConflit(conflit);
             maj.activite.choixMachine();
             jobshop.JobShopGraph.majDatesAuPlusTot();
-
             conflit = jobshop.JobShopGraph.detecterConflit();
         }
 
         /*** Etape finale : Affichage du graphe solution et calcul du cMax***/
-
-        //jobshop.JobShopGraph.afficherGraphe();
-        //System.out.println("CMax = " + jobshop.JobShopGraph.cMax().toString());
 
         printMatrice(toMatrice(jobshop.JobShopGraph),jobshop.JobShopGraph.cMax(),jobshop.Processus.length);
 
