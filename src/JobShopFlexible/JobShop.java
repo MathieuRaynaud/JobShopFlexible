@@ -88,13 +88,6 @@ public class JobShop {
         JobShopGraph.ajouterSommet(sommetFin);
     }
 
-    public Machine getMachineByID(Integer id){
-        for (Machine m : tableauMachines){
-            if (m.id == id) return m;
-        }
-        return null;
-    }
-
     public Machine machine(Integer id){
         for (Machine m : tableauMachines){
             if (m.id.equals(id)) return m;
