@@ -126,16 +126,13 @@ public class Glouton {
        TODO : Corriger l'heuristique : le calcul doit se faire à partir des tableaux, et le graphe doit être construit en sortie en tant que représentation de résultat
      */
     public Integer heuristiqueGloutonne() {
-        /*** Initialisation du tableau de dates ***/
-        Integer[] dates = new Integer[this.jobshop.Processus.length];
-        Arrays.fill(dates, 0);
 
-        /*** Etape 2 : Creation d'une solution initiale avec les machines les plus rapides pour chaque activite ***/
+        /*** Etape 1 : Creation d'une solution initiale avec les machines les plus rapides pour chaque activite ***/
         initial();
         jobshop.JobShopGraph.lierSommets();
         jobshop.JobShopGraph.majDatesAuPlusTot();
 
-        /*** Etape 3 : Mise a jour de la solution jusqu'a ce qu'elle soit acceptable ***/
+        /*** Etape 2 : Mise a jour de la solution jusqu'a ce qu'elle soit acceptable ***/
 
         Conflit conflit = jobshop.JobShopGraph.detecterConflit();
         while (conflit != null) {
