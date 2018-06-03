@@ -17,7 +17,6 @@ public class Glouton {
      */
 
     public JobShop jobshop;
-    public ArrayList<Sommet> file_attente;
 
     /*
      *  Constructeur
@@ -25,7 +24,6 @@ public class Glouton {
 
     public Glouton(JobShop jobshop){
         this.jobshop = jobshop;
-        this.file_attente = new ArrayList<Sommet>();
     }
 
     /*
@@ -40,19 +38,6 @@ public class Glouton {
             - Si un processus peut utiliser plusieurs machines pour s'exectuer, on utilise celle qui est libre qui prendra le moins de temps --> choixMachine
             - Pour chaque processus, l'ordre des activites doit être respecté --> Géré par la file_attente
      *******************************************************************************************************************************************************/
-
-    /** Initialisation de la file d'attente : mise de tous les sommets qui ont pour prédecesseur le debut --> Fonctionne ! **/
-    private void init_file_attente(){
-        for (Sommet sommet : this.jobshop.JobShopGraph.ensembleSommets) {
-            for (Arc pred : sommet.predecesseurs) {
-                if (pred != null) {
-                    if (pred.sommetDepart.id == "debut") {
-                        file_attente.add(sommet);
-                    }
-                }
-            }
-        }
-    }
 
 
     /******* Initial : Créer une solution non acceptable avec les meilleures machines pour chaque activite *******/
@@ -144,9 +129,6 @@ public class Glouton {
         /*** Initialisation du tableau de dates ***/
         Integer[] dates = new Integer[this.jobshop.Processus.length];
         Arrays.fill(dates, 0);
-
-        /*** Etape 1 : Mise de tous les sommets de depart dans la file d'attente ***/
-        init_file_attente();
 
         /*** Etape 2 : Creation d'une solution initiale avec les machines les plus rapides pour chaque activite ***/
         initial();
