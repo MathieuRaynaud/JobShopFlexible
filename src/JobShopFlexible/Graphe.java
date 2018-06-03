@@ -57,23 +57,23 @@ public class Graphe {
         Integer result = -1;
 
         datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet), -2); // Mise à -2 pour la détection de cycles
-        for (Arc a : sommet.predecesseurs) {
-            if (a.sommetDepart.id.equals("debut")) {
-                return a.duree;
+        for(Arc a : sommet.predecesseurs){
+            if (a.sommetDepart.id.equals("debut")){
+                result = Integer.max(result, a.duree);
             }
             else if (!datesDebutAuPlusTot.get(ensembleSommets.indexOf(a.sommetDepart)).equals(-2)){
-                cycle = false;
-                if (a.machine == a.sommetDepart.activite.machineChoisie) {
-                    Integer duree = dateAuPlusTot(a.sommetDepart) + a.duree;
-                    result = Integer.max(duree, result);
-                }
+                result = Integer.max(result, a.sommetDepart.activite.date_fin);
             }
-            else cycle = true;
+            else{
+                cycle = true;
+            }
         }
         if (cycle) {
             System.out.println("Cycle détecté, arrêt de la recherche de la date au plus tot pour le sommet "+sommet.id);
             return -1;
-        } else return result;
+        } else {
+            return result;
+        }
     }
 
     /*************************************************************/
@@ -85,18 +85,9 @@ public class Graphe {
 
     public Integer dateAuPlusTot(Sommet sommet){
         if (!sommet.id.equals("debut") && !sommet.id.equals("fin")) {
-            if (sommet.aPourPredecesseur(getSommetByID("debut"))){
-                Integer result = maxPred(sommet);
-                datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
-                return result;
-            }
-            else if (datesDebutAuPlusTot.get(ensembleSommets.indexOf(sommet)) >= 0) {
-                return sommet.predecesseur().activite.date_fin;
-            } else {
-                Integer result = maxPred(sommet);
-                datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
-                return result;
-            }
+            Integer result = maxPred(sommet);
+            datesDebutAuPlusTot.set(ensembleSommets.indexOf(sommet),result);
+            return result;
         }
         else if (sommet.id.equals("debut")) return 0;
         else if (sommet.id.equals("fin")) return maxPred(sommet);
@@ -118,16 +109,16 @@ public class Graphe {
      ***/
     public Integer cMax() {
         Integer cmax = 0;
-        Sommet fin = ensembleSommets.get(ensembleSommets.size() - 1);
+        Sommet fin = getSommetByID("fin");
         for (Arc a : fin.predecesseurs) {
-            cmax = Integer.max(cmax, dateAuPlusTot(a.sommetDepart) + a.duree);
+            cmax = Integer.max(cmax, a.sommetDepart.activite.date_fin);
         }
         return cmax;
     }
 
     public Sommet getSommetByID(String id){
         for (Sommet s : ensembleSommets){
-            if (s.id == id){
+            if (s.id.equals(id)){
                 return s;
             }
         }

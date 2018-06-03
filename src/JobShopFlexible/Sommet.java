@@ -11,7 +11,6 @@ public class Sommet {
     public String id;
     public int nbpredecesseurs;
     public ArrayList<Arc> predecesseurs;
-    public int indicePredecesseurs;
     public Processus processus;
     public Activite activite;
 
@@ -21,7 +20,6 @@ public class Sommet {
         this.id = nom;
         this.nbpredecesseurs = nbpredecesseurs;
         this.predecesseurs = new ArrayList<Arc>();
-        this.indicePredecesseurs = nbpredecesseurs-1;
         this.processus = processus;
         this.activite = activite;
     }
@@ -50,7 +48,6 @@ public class Sommet {
      ***/
     public Integer ajouterArc(Sommet depart, Machine machine, Integer cout){
         this.predecesseurs.add(new Arc(depart, machine, cout));
-        indicePredecesseurs--;
         return 0;
     }
 
@@ -65,9 +62,9 @@ public class Sommet {
 
     public Sommet predecesseur(){
         for (Arc a : predecesseurs){
-            if (a.sommetDepart.id != "debut") {
-                if (a.sommetDepart.processus == this.processus) {
-                    if (a.sommetDepart.activite.id == activite.id - 1) {
+            if (!a.sommetDepart.id.equals("debut")) {
+                if (a.sommetDepart.processus.id.equals(this.processus.id)) {
+                    if (a.sommetDepart.activite.id.equals((activite.id-1))) {
                         return a.sommetDepart;
                     }
                 }
@@ -79,7 +76,7 @@ public class Sommet {
 
     public boolean aPourPredecesseur(Sommet s){
         for (Arc a : predecesseurs){
-            if (a.sommetDepart == s){
+            if (a.sommetDepart.equals(s)){
                 return true;
             }
         }

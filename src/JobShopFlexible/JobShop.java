@@ -97,7 +97,7 @@ public class JobShop {
 
     public static void main (String[] args){
         long debut = System.currentTimeMillis();
-        File file = new File("Job_Data/Barnes/Text/mt10cc.fjs");
+        File file = new File("Job_Data/Barnes/Text/mt10c1.fjs");
         JobShop JobFlex = new JobShop(file);
         Glouton glouton = new Glouton(JobFlex);
         glouton.heuristiqueGloutonne();

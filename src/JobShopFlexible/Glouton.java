@@ -60,14 +60,17 @@ public class Glouton {
         Integer ActiviteActuelle = 1;
         Integer indice;
         Machine[][] Matrice = new Machine[jobshop.Processus.length][graphe.cMax()];
+        System.out.println("CMax = " + graphe.cMax());
         while (ProcessActuel < (jobshop.Processus.length+1)){
             ActiviteActuelle = 1;
             for (Sommet s : graphe.ensembleSommets){
                 if (!s.id.equals("debut") && !s.id.equals("fin")) {
                     if (s.processus.id.equals(ProcessActuel)) {
                         if (s.activite.id.equals(ActiviteActuelle)) {
+                        //System.out.println("Activite actuelle : " + s.id);
                             indice = s.activite.date_debut;
                             while (indice < s.activite.date_fin) {
+                                //System.out.println("Date actuelle : " + indice.toString());
                                 Matrice[ProcessActuel - 1][indice] = s.activite.machineChoisie;
                                 indice++;
                             }
@@ -144,7 +147,7 @@ public class Glouton {
 
         /*** Etape finale : Affichage du graphe solution et calcul du cMax***/
 
-        printMatrice(toMatrice(jobshop.JobShopGraph),jobshop.JobShopGraph.cMax(),jobshop.Processus.length);
+        printMatrice(toMatrice(jobshop.JobShopGraph),(jobshop.JobShopGraph.cMax()),jobshop.Processus.length);
 
         return 0;
     }
